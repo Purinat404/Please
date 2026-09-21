@@ -1,11 +1,13 @@
 -- # ภาษาไทยข้อมูล
--- MCore v1.0 + Key System
--- วางส่วนที่ 1 แล้วต่อด้วยส่วนที่ 2 ในไฟล์เดียว
+-- MCore v1.0 
 
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
 local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
 
 -- # ===== ตั้งค่า Key =====
 local VALID_KEYS = {
@@ -163,7 +165,734 @@ local function showKeyUI(onSuccess)
     end)
 end
 
--- # ===== เริ่ม MCore หลังใส่ key ถูก =====
+-- # ===== เรียก Key UI แล้วเริ่ม MCore =====
 showKeyUI(function()
-    -- # โค้ดส่วนที่ 2 ต่อตรงนี้
+-- # ===== ส่วนที่ 2: MCore หลัก =====
+local config = {
+    fullbright = false,
+    noShadows = false,
+    noFog = false,
+    noParticles = false,
+    fov = 70,
+    espEnabled = false,
+    showName = true,
+    showHealth = true,
+    showDistance = true,
+    maxDistance = 500,
+    speedEnabled = false,
+    speedValue = 16,
+    jumpEnabled = false,
+    jumpValue = 50,
+    infiniteJump = false,
+}
+
+local original = {
+    fov = Camera.FieldOfView,
+    ambient = Lighting.Ambient,
+    outdoorAmbient = Lighting.OutdoorAmbient,
+    brightness = Lighting.Brightness,
+    fogEnd = Lighting.FogEnd,
+    fogStart = Lighting.FogStart,
+    shadows = Lighting.GlobalShadows,
+}
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "MCoreUI"
+screenGui.ResetOnSpawn = false
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+-- # ปุ่มลอย
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0, 50, 0, 50)
+toggleBtn.Position = UDim2.new(1, -70, 0, 20)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+toggleBtn.BorderSizePixel = 0
+toggleBtn.Text = "M"
+toggleBtn.TextColor3 = Color3.fromRGB(0, 180, 255)
+toggleBtn.TextSize = 24
+toggleBtn.Font = Enum.Font.GothamBlack
+toggleBtn.AutoButtonColor = false
+toggleBtn.Parent = screenGui
+
+local btnCorner = Instance.new("UICorner")
+btnCorner.CornerRadius = UDim.new(0, 12)
+btnCorner.Parent = toggleBtn
+
+local btnStroke = Instance.new("UIStroke")
+btnStroke.Thickness = 2
+btnStroke.Color = Color3.fromRGB(0, 150, 255)
+btnStroke.Parent = toggleBtn
+
+-- # เมนูหลัก
+local menu = Instance.new("Frame")
+menu.Size = UDim2.new(0, 420, 0, 340)
+menu.Position = UDim2.new(1, -440, 0, 20)
+menu.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+menu.BackgroundTransparency = 0.05
+menu.BorderSizePixel = 0
+menu.Visible = false
+menu.Parent = screenGui
+
+local menuCorner = Instance.new("UICorner")
+menuCorner.CornerRadius = UDim.new(0, 14)
+menuCorner.Parent = menu
+
+local menuStroke = Instance.new("UIStroke")
+menuStroke.Thickness = 2
+menuStroke.Color = Color3.fromRGB(0, 150, 255)
+menuStroke.Parent = menu
+
+-- # Sidebar
+local sidebar = Instance.new("Frame")
+sidebar.Size = UDim2.new(0, 110, 1, 0)
+sidebar.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+sidebar.BorderSizePixel = 0
+sidebar.Parent = menu
+
+local sidebarCorner = Instance.new("UICorner")
+sidebarCorner.CornerRadius = UDim.new(0, 14)
+sidebarCorner.Parent = sidebar
+
+local sidebarFix = Instance.new("Frame")
+sidebarFix.Size = UDim2.new(0, 15, 1, 0)
+sidebarFix.Position = UDim2.new(1, -15, 0, 0)
+sidebarFix.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+sidebarFix.BorderSizePixel = 0
+sidebarFix.Parent = sidebar
+
+-- # โลโก้ M
+local logoBox = Instance.new("Frame")
+logoBox.Size = UDim2.new(0, 60, 0, 60)
+logoBox.Position = UDim2.new(0.5, -30, 0, 15)
+logoBox.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+logoBox.BorderSizePixel = 0
+logoBox.Parent = sidebar
+
+local logoCorner = Instance.new("UICorner")
+logoCorner.CornerRadius = UDim.new(0, 12)
+logoCorner.Parent = logoBox
+
+local logoStroke = Instance.new("UIStroke")
+logoStroke.Thickness = 2
+logoStroke.Color = Color3.fromRGB(0, 150, 255)
+logoStroke.Parent = logoBox
+
+local logoText = Instance.new("TextLabel")
+logoText.Size = UDim2.new(1, 0, 1, 0)
+logoText.BackgroundTransparency = 1
+logoText.Text = "M"
+logoText.TextColor3 = Color3.fromRGB(0, 180, 255)
+logoText.TextSize = 32
+logoText.Font = Enum.Font.GothamBlack
+logoText.Parent = logoBox
+
+local brandName = Instance.new("TextLabel")
+brandName.Size = UDim2.new(1, 0, 0, 20)
+brandName.Position = UDim2.new(0, 0, 0, 80)
+brandName.BackgroundTransparency = 1
+brandName.Text = "M-CORE"
+brandName.TextColor3 = Color3.fromRGB(0, 180, 255)
+brandName.TextSize = 14
+brandName.Font = Enum.Font.GothamBold
+brandName.Parent = sidebar
+
+local sideDivider = Instance.new("Frame")
+sideDivider.Size = UDim2.new(1, -20, 0, 1)
+sideDivider.Position = UDim2.new(0, 10, 0, 110)
+sideDivider.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+sideDivider.BorderSizePixel = 0
+sideDivider.Parent = sidebar
+
+-- # Content Area
+local contentArea = Instance.new("Frame")
+contentArea.Size = UDim2.new(1, -110, 1, 0)
+contentArea.Position = UDim2.new(0, 110, 0, 0)
+contentArea.BackgroundTransparency = 1
+contentArea.Parent = menu
+
+local contentHeader = Instance.new("Frame")
+contentHeader.Size = UDim2.new(1, 0, 0, 44)
+contentHeader.BackgroundTransparency = 1
+contentHeader.Parent = contentArea
+
+local headerTitle = Instance.new("TextLabel")
+headerTitle.Size = UDim2.new(1, -60, 1, 0)
+headerTitle.Position = UDim2.new(0, 16, 0, 0)
+headerTitle.BackgroundTransparency = 1
+headerTitle.Text = "VISUAL"
+headerTitle.TextColor3 = Color3.fromRGB(0, 180, 255)
+headerTitle.TextSize = 16
+headerTitle.Font = Enum.Font.GothamBold
+headerTitle.TextXAlignment = Enum.TextXAlignment.Left
+headerTitle.Parent = contentHeader
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 26, 0, 26)
+closeBtn.Position = UDim2.new(1, -36, 0, 9)
+closeBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+closeBtn.BorderSizePixel = 0
+closeBtn.Text = "X"
+closeBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
+closeBtn.TextSize = 13
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.Parent = contentHeader
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 7)
+closeCorner.Parent = closeBtn
+
+local headerDivider = Instance.new("Frame")
+headerDivider.Size = UDim2.new(1, -20, 0, 1)
+headerDivider.Position = UDim2.new(0, 10, 0, 44)
+headerDivider.BackgroundColor3 = Color3.fromRGB(0, 100, 200)
+headerDivider.BorderSizePixel = 0
+headerDivider.Parent = contentArea
+
+local pageContainer = Instance.new("Frame")
+pageContainer.Size = UDim2.new(1, -20, 1, -60)
+pageContainer.Position = UDim2.new(0, 10, 0, 52)
+pageContainer.BackgroundTransparency = 1
+pageContainer.Parent = contentArea
+
+-- # ระบบแท็บ
+local pages = {}
+local tabButtons = {}
+local currentTab = nil
+
+local function createPage(name)
+    local page = Instance.new("ScrollingFrame")
+    page.Size = UDim2.new(1, 0, 1, 0)
+    page.BackgroundTransparency = 1
+    page.BorderSizePixel = 0
+    page.ScrollBarThickness = 3
+    page.ScrollBarImageColor3 = Color3.fromRGB(0, 150, 255)
+    page.CanvasSize = UDim2.new(0, 0, 0, 0)
+    page.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    page.Visible = false
+    page.Parent = pageContainer
+
+    local layout = Instance.new("UIListLayout")
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Padding = UDim.new(0, 6)
+    layout.Parent = page
+
+    pages[name] = page
+end
+
+local function createTabButton(name, icon, order)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, -20, 0, 34)
+    btn.Position = UDim2.new(0, 10, 0, 130 + (order - 1) * 38)
+    btn.BackgroundColor3 = Color3.fromRGB(18, 18, 26)
+    btn.BorderSizePixel = 0
+    btn.Text = ""
+    btn.AutoButtonColor = false
+    btn.Parent = sidebar
+
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 8)
+    btnCorner.Parent = btn
+
+    local iconLabel = Instance.new("TextLabel")
+    iconLabel.Size = UDim2.new(0, 26, 1, 0)
+    iconLabel.Position = UDim2.new(0, 6, 0, 0)
+    iconLabel.BackgroundTransparency = 1
+    iconLabel.Text = icon
+    iconLabel.TextColor3 = Color3.fromRGB(0, 180, 255)
+    iconLabel.TextSize = 14
+    iconLabel.Font = Enum.Font.GothamBold
+    iconLabel.Parent = btn
+
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, -36, 1, 0)
+    textLabel.Position = UDim2.new(0, 32, 0, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.Text = name
+    textLabel.TextColor3 = Color3.fromRGB(220, 220, 230)
+    textLabel.TextSize = 12
+    textLabel.Font = Enum.Font.Gotham
+    textLabel.TextXAlignment = Enum.TextXAlignment.Left
+    textLabel.Parent = btn
+
+    tabButtons[name] = {btn = btn, text = textLabel}
+end
+
+local function switchTab(name)
+    if currentTab == name then return end
+    for tabName, page in pairs(pages) do
+        page.Visible = (tabName == name)
+    end
+    for tabName, data in pairs(tabButtons) do
+        if tabName == name then
+            TweenService:Create(data.btn, TweenInfo.new(0.2), {
+                BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+            }):Play()
+            data.text.TextColor3 = Color3.fromRGB(255, 255, 255)
+        else
+            TweenService:Create(data.btn, TweenInfo.new(0.2), {
+                BackgroundColor3 = Color3.fromRGB(18, 18, 26)
+            }):Play()
+            data.text.TextColor3 = Color3.fromRGB(220, 220, 230)
+        end
+    end
+    headerTitle.Text = name
+    currentTab = name
+end
+
+-- # ฟังก์ชันสร้าง Toggle
+local function createToggle(parent, text, default, callback)
+    local row = Instance.new("Frame")
+    row.Size = UDim2.new(1, -10, 0, 34)
+    row.BackgroundColor3 = Color3.fromRGB(18, 18, 26)
+    row.BorderSizePixel = 0
+    row.Parent = parent
+
+    local rowCorner = Instance.new("UICorner")
+    rowCorner.CornerRadius = UDim.new(0, 8)
+    rowCorner.Parent = row
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -70, 1, 0)
+    label.Position = UDim2.new(0, 12, 0, 0)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = Color3.fromRGB(220, 220, 230)
+    label.TextSize = 13
+    label.Font = Enum.Font.Gotham
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = row
+
+    local toggle = Instance.new("TextButton")
+    toggle.Size = UDim2.new(0, 44, 0, 22)
+    toggle.Position = UDim2.new(1, -54, 0.5, -11)
+    toggle.BackgroundColor3 = default and Color3.fromRGB(0, 150, 255) or Color3.fromRGB(50, 50, 60)
+    toggle.BorderSizePixel = 0
+    toggle.Text = ""
+    toggle.AutoButtonColor = false
+    toggle.Parent = row
+
+    local toggleCorner = Instance.new("UICorner")
+    toggleCorner.CornerRadius = UDim.new(1, 0)
+    toggleCorner.Parent = toggle
+
+    local knob = Instance.new("Frame")
+    knob.Size = UDim2.new(0, 18, 0, 18)
+    knob.Position = default and UDim2.new(1, -20, 0.5, -9) or UDim2.new(0, 2, 0.5, -9)
+    knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    knob.BorderSizePixel = 0
+    knob.Parent = toggle
+
+    local knobCorner = Instance.new("UICorner")
+    knobCorner.CornerRadius = UDim.new(1, 0)
+    knobCorner.Parent = knob
+
+    local state = default
+    toggle.MouseButton1Click:Connect(function()
+        state = not state
+        TweenService:Create(toggle, TweenInfo.new(0.2), {
+            BackgroundColor3 = state and Color3.fromRGB(0, 150, 255) or Color3.fromRGB(50, 50, 60)
+        }):Play()
+        TweenService:Create(knob, TweenInfo.new(0.2), {
+            Position = state and UDim2.new(1, -20, 0.5, -9) or UDim2.new(0, 2, 0.5, -9)
+        }):Play()
+        if callback then callback(state) end
+    end)
+end
+
+-- # ฟังก์ชันสร้าง Slider
+local function createSlider(parent, text, min, max, default, callback)
+    local row = Instance.new("Frame")
+    row.Size = UDim2.new(1, -10, 0, 54)
+    row.BackgroundColor3 = Color3.fromRGB(18, 18, 26)
+    row.BorderSizePixel = 0
+    row.Parent = parent
+
+    local rowCorner = Instance.new("UICorner")
+    rowCorner.CornerRadius = UDim.new(0, 8)
+    rowCorner.Parent = row
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -20, 0, 20)
+    label.Position = UDim2.new(0, 12, 0, 6)
+    label.BackgroundTransparency = 1
+    label.Text = text .. ": " .. default
+    label.TextColor3 = Color3.fromRGB(220, 220, 230)
+    label.TextSize = 13
+    label.Font = Enum.Font.Gotham
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = row
+
+    local bar = Instance.new("Frame")
+    bar.Size = UDim2.new(1, -24, 0, 6)
+    bar.Position = UDim2.new(0, 12, 0, 38)
+    bar.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+    bar.BorderSizePixel = 0
+    bar.Parent = row
+
+    local barCorner = Instance.new("UICorner")
+    barCorner.CornerRadius = UDim.new(1, 0)
+    barCorner.Parent = bar
+
+    local fill = Instance.new("Frame")
+    fill.Size = UDim2.new((default - min) / (max - min), 0, 1, 0)
+    fill.BackgroundColor3 = Color3.fromRGB(0, 180, 255)
+    fill.BorderSizePixel = 0
+    fill.Parent = bar
+
+    local fillCorner = Instance.new("UICorner")
+    fillCorner.CornerRadius = UDim.new(1, 0)
+    fillCorner.Parent = fill
+
+    local dragging = false
+    local function updateFromX(x)
+        local rel = math.clamp((x - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
+        local val = math.floor(min + (max - min) * rel)
+        fill.Size = UDim2.new(rel, 0, 1, 0)
+        label.Text = text .. ": " .. val
+        if callback then callback(val) end
+    end
+
+    bar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            updateFromX(input.Position.X)
+        end
+    end)
+    bar.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            updateFromX(input.Position.X)
+        end
+    end)
+end
+
+local function createSectionLabel(parent, text)
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, -10, 0, 24)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = "  " .. text
+    lbl.TextColor3 = Color3.fromRGB(0, 180, 255)
+    lbl.TextSize = 12
+    lbl.Font = Enum.Font.GothamBold
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Parent = parent
+end
+
+-- # สร้างเพจ
+createPage("VISUAL")
+createPage("ESP")
+createPage("PLAYER")
+createPage("SETTINGS")
+
+createTabButton("VISUAL", "V", 1)
+createTabButton("ESP", "E", 2)
+createTabButton("PLAYER", "P", 3)
+createTabButton("SETTINGS", "S", 4)
+
+for name, data in pairs(tabButtons) do
+    data.btn.MouseButton1Click:Connect(function()
+        switchTab(name)
+    end)
+end
+
+-- # VISUAL
+createSectionLabel(pages.VISUAL, "ปรับภาพ")
+createToggle(pages.VISUAL, "Fullbright", config.fullbright, function(v)
+    config.fullbright = v
+    if v then
+        Lighting.Ambient = Color3.fromRGB(180, 180, 180)
+        Lighting.OutdoorAmbient = Color3.fromRGB(180, 180, 180)
+        Lighting.Brightness = 3
+    else
+        Lighting.Ambient = original.ambient
+        Lighting.OutdoorAmbient = original.outdoorAmbient
+        Lighting.Brightness = original.brightness
+    end
+end)
+createToggle(pages.VISUAL, "ปิดเงา", config.noShadows, function(v)
+    config.noShadows = v
+    Lighting.GlobalShadows = not v
+end)
+createToggle(pages.VISUAL, "ปิดหมอก", config.noFog, function(v)
+    config.noFog = v
+    if v then
+        Lighting.FogEnd = 100000
+        Lighting.FogStart = 100000
+    else
+        Lighting.FogEnd = original.fogEnd
+        Lighting.FogStart = original.fogStart
+    end
+end)
+createToggle(pages.VISUAL, "ปิด Particle", config.noParticles, function(v)
+    config.noParticles = v
+    for _, obj in pairs(workspace:GetDescendants()) do
+        if obj:IsA("ParticleEmitter") or obj:IsA("Fire") or obj:IsA("Smoke") or obj:IsA("Sparkles") then
+            pcall(function() obj.Enabled = not v end)
+        end
+    end
+end)
+createSlider(pages.VISUAL, "FOV", 50, 120, config.fov, function(v)
+    config.fov = v
+    Camera.FieldOfView = v
+end)
+
+-- # ESP
+createSectionLabel(pages.ESP, "ระบบมองเห็น")
+createToggle(pages.ESP, "เปิด ESP", config.espEnabled, function(v) config.espEnabled = v end)
+createToggle(pages.ESP, "โชว์ชื่อ", config.showName, function(v) config.showName = v end)
+createToggle(pages.ESP, "โชว์เลือด", config.showHealth, function(v) config.showHealth = v end)
+createToggle(pages.ESP, "โชว์ระยะทาง", config.showDistance, function(v) config.showDistance = v end)
+createSlider(pages.ESP, "ระยะสูงสุด", 50, 2000, config.maxDistance, function(v) config.maxDistance = v end)
+
+-- # PLAYER
+createSectionLabel(pages.PLAYER, "ตัวละคร")
+createToggle(pages.PLAYER, "เพิ่มความเร็ว", config.speedEnabled, function(v) config.speedEnabled = v end)
+createSlider(pages.PLAYER, "ความเร็ว", 16, 200, config.speedValue, function(v) config.speedValue = v end)
+createToggle(pages.PLAYER, "กระโดดสูง", config.jumpEnabled, function(v) config.jumpEnabled = v end)
+createSlider(pages.PLAYER, "ความสูงกระโดด", 50, 200, config.jumpValue, function(v) config.jumpValue = v end)
+createToggle(pages.PLAYER, "Infinite Jump", config.infiniteJump, function(v) config.infiniteJump = v end)
+
+-- # SETTINGS
+createSectionLabel(pages.SETTINGS, "ตั้งค่า")
+local infoLabel = Instance.new("TextLabel")
+infoLabel.Size = UDim2.new(1, -10, 0, 100)
+infoLabel.BackgroundColor3 = Color3.fromRGB(18, 18, 26)
+infoLabel.BorderSizePixel = 0
+infoLabel.Text = "\n  MCore v1.0 + Key System\n  ธีม: ฟ้า-ดำ\n  สถานะ: ทำงานอยู่\n  Key: ✅ ยืนยันแล้ว"
+infoLabel.TextColor3 = Color3.fromRGB(180, 180, 200)
+infoLabel.TextSize = 12
+infoLabel.Font = Enum.Font.Gotham
+infoLabel.TextXAlignment = Enum.TextXAlignment.Left
+infoLabel.TextYAlignment = Enum.TextYAlignment.Top
+infoLabel.Parent = pages.SETTINGS
+
+local infoCorner = Instance.new("UICorner")
+infoCorner.CornerRadius = UDim.new(0, 8)
+infoCorner.Parent = infoLabel
+
+-- # เปิด/ปิดเมนู
+local menuOpen = false
+local function toggleMenu()
+    menuOpen = not menuOpen
+    menu.Visible = true
+    if menuOpen then
+        menu.Position = UDim2.new(1, 20, 0, 20)
+        TweenService:Create(menu, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Position = UDim2.new(1, -440, 0, 20)
+        }):Play()
+    else
+        local t = TweenService:Create(menu, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            Position = UDim2.new(1, 20, 0, 20)
+        })
+        t:Play()
+        t.Completed:Connect(function()
+            if not menuOpen then menu.Visible = false end
+        end)
+    end
+end
+
+toggleBtn.MouseButton1Click:Connect(toggleMenu)
+closeBtn.MouseButton1Click:Connect(toggleMenu)
+
+switchTab("VISUAL")
+
+-- # ลากปุ่มลอย
+local draggingBtn = false
+local dragStart, startPos
+toggleBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        draggingBtn = true
+        dragStart = input.Position
+        startPos = toggleBtn.Position
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if draggingBtn and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        toggleBtn.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        draggingBtn = false
+    end
+end)
+    -- # ===== ส่วนที่ 3: ESP + Player + Loop =====
+    local espCache = {}
+
+    local function clearESP(plr)
+        if espCache[plr] then
+            espCache[plr]:Destroy()
+            espCache[plr] = nil
+            espCache[plr .. "_name"] = nil
+            espCache[plr .. "_dist"] = nil
+            espCache[plr .. "_health"] = nil
+            espCache[plr .. "_healthBg"] = nil
+        end
+    end
+
+    local function createESP(plr)
+        if plr == LocalPlayer then return end
+        clearESP(plr)
+
+        local billboard = Instance.new("BillboardGui")
+        billboard.Name = "MCoreESP"
+        billboard.Size = UDim2.new(0, 200, 0, 60)
+        billboard.StudsOffset = Vector3.new(0, 3, 0)
+        billboard.AlwaysOnTop = true
+        billboard.Parent = screenGui
+
+        local nameLabel = Instance.new("TextLabel")
+        nameLabel.Size = UDim2.new(1, 0, 0, 20)
+        nameLabel.BackgroundTransparency = 1
+        nameLabel.Text = plr.Name
+        nameLabel.TextColor3 = Color3.fromRGB(0, 200, 255)
+        nameLabel.TextStrokeTransparency = 0
+        nameLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+        nameLabel.TextSize = 14
+        nameLabel.Font = Enum.Font.GothamBold
+        nameLabel.Parent = billboard
+
+        local distLabel = Instance.new("TextLabel")
+        distLabel.Size = UDim2.new(1, 0, 0, 14)
+        distLabel.Position = UDim2.new(0, 0, 0, 20)
+        distLabel.BackgroundTransparency = 1
+        distLabel.Text = ""
+        distLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+        distLabel.TextStrokeTransparency = 0
+        distLabel.TextSize = 11
+        distLabel.Font = Enum.Font.Gotham
+        distLabel.Parent = billboard
+
+        local healthBg = Instance.new("Frame")
+        healthBg.Size = UDim2.new(0, 100, 0, 6)
+        healthBg.Position = UDim2.new(0.5, -50, 0, 36)
+        healthBg.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        healthBg.BorderSizePixel = 0
+        healthBg.Parent = billboard
+
+        local bgCorner = Instance.new("UICorner")
+        bgCorner.CornerRadius = UDim.new(1, 0)
+        bgCorner.Parent = healthBg
+
+        local healthFill = Instance.new("Frame")
+        healthFill.Size = UDim2.new(1, 0, 1, 0)
+        healthFill.BackgroundColor3 = Color3.fromRGB(0, 255, 100)
+        healthFill.BorderSizePixel = 0
+        healthFill.Parent = healthBg
+
+        local hfCorner = Instance.new("UICorner")
+        hfCorner.CornerRadius = UDim.new(1, 0)
+        hfCorner.Parent = healthFill
+
+        espCache[plr] = billboard
+        espCache[plr .. "_name"] = nameLabel
+        espCache[plr .. "_dist"] = distLabel
+        espCache[plr .. "_health"] = healthFill
+        espCache[plr .. "_healthBg"] = healthBg
+    end
+
+    local function updateESP()
+        if not config.espEnabled then
+            for plr, v in pairs(espCache) do
+                if typeof(v) == "Instance" then clearESP(plr) end
+            end
+            return
+        end
+
+        for _, plr in pairs(Players:GetPlayers()) do
+            if plr == LocalPlayer then continue end
+            local char = plr.Character
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+
+            if hrp and hum and hum.Health > 0 then
+                if not espCache[plr] then createESP(plr) end
+                local billboard = espCache[plr]
+                if billboard and billboard.Parent then
+                    billboard.Adornee = hrp
+                    local dist = (Camera.CFrame.Position - hrp.Position).Magnitude
+                    billboard.Enabled = dist <= config.maxDistance
+
+                    local nl = espCache[plr .. "_name"]
+                    if nl then nl.Visible = config.showName end
+
+                    local dl = espCache[plr .. "_dist"]
+                    if dl then
+                        dl.Visible = config.showDistance
+                        dl.Text = math.floor(dist) .. " studs"
+                    end
+
+                    local hb = espCache[plr .. "_healthBg"]
+                    local hf = espCache[plr .. "_health"]
+                    if hb and hf then
+                        hb.Visible = config.showHealth
+                        local percent = hum.Health / hum.MaxHealth
+                        hf.Size = UDim2.new(percent, 0, 1, 0)
+                        if percent > 0.6 then
+                            hf.BackgroundColor3 = Color3.fromRGB(0, 255, 100)
+                        elseif percent > 0.3 then
+                            hf.BackgroundColor3 = Color3.fromRGB(255, 200, 0)
+                        else
+                            hf.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+                        end
+                    end
+                end
+            else
+                clearESP(plr)
+            end
+        end
+    end
+
+    -- # Player functions
+    local function updatePlayer()
+        local char = LocalPlayer.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        if hum then
+            if config.speedEnabled then
+                hum.WalkSpeed = config.speedValue
+            else
+                hum.WalkSpeed = 16
+            end
+            if config.jumpEnabled then
+                hum.JumpPower = config.jumpValue
+                hum.UseJumpPower = true
+            else
+                hum.JumpPower = 50
+            end
+        end
+    end
+
+    UserInputService.JumpRequest:Connect(function()
+        if config.infiniteJump then
+            local char = LocalPlayer.Character
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+            if hum then
+                hum:ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        end
+    end)
+
+    -- # Loop หลัก
+    RunService.RenderStepped:Connect(function()
+        pcall(updateESP)
+        pcall(updatePlayer)
+    end)
+
+    Players.PlayerRemoving:Connect(function(plr)
+        clearESP(plr)
+    end)
+
+    -- # ESC ปิดเมนู
+    UserInputService.InputBegan:Connect(function(input, processed)
+        if processed then return end
+        if input.KeyCode == Enum.KeyCode.Escape then
+            if menuOpen then toggleMenu() end
+        end
+    end)
 end)
