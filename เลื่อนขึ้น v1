@@ -1,156 +1,230 @@
-local Lighting = game:GetService("Lighting")
-local Workspace = game:GetService("Workspace")
-local StarterGui = game:GetService("StarterGui")
+-- # ภาษาไทยข้อมูล
+-- UI Boot สีรุ้ง ปรับความเร็วแบบพอดี (ใช้กับ Delta Executor)
+-- ปลอดภัย ไม่แตะระบบเกม
 
--- # ตั้งค่าทั้งหมด
-local config = {
-    -- # ส่วนลบของไม่จำเป็น
-    removeTextures = true,      -- ลบ texture ทั้งหมด
-    removeDecals = true,        -- ลบ decal/รูปแปะทั้งหมด
-    removeParticles = true,     -- ลบ particle effect
-    removeFireSmoke = true,     -- ลบไฟ/ควัน/sparkles
-    removeShadows = true,       -- ปิดเงา
-    removeFog = true,           -- ปิดหมอก
-    removeBloom = true,         -- ปิด bloom
-    removeSunRays = true,       -- ปิดแสงอาทิตย์
-    removePostEffects = true,   -- ปิด post-processing ทั้งหมด
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
 
-    -- # ส่วนปรับภาพ
-    flatLighting = true,        -- แสงแบนเหมือนดินน้ำมัน
-    lowestQuality = true,       -- ลดคุณภาพต่ำสุด
-    boostFPS = true,            -- เพิ่ม FPS
+-- # ลบ UI เก่า
+local oldGui = LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("SaikutoBootUI")
+if oldGui then oldGui:Destroy() end
 
-    -- # ส่วนการทำงาน
-    autoRerun = true,           -- วนซ้ำอัตโนมัติ
-    rerunInterval = 10,         -- วนทุกกี่วินาที
-    rerunJitter = 3,            -- สุ่มเวลาเพิ่ม/ลด
-    startDelay = 3,             -- หน่วงก่อนเริ่ม
-}
+-- # ===== สร้าง GUI =====
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "SaikutoBootUI"
+screenGui.ResetOnSpawn = false
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
--- # ฟังก์ชันปรับ Lighting
-local function optimizeLighting()
-    if config.removeShadows then
-        Lighting.GlobalShadows = false
-    end
-    if config.removeFog then
-        Lighting.FogEnd = 100000
-        Lighting.FogStart = 100000
-    end
-    for _, v in pairs(Lighting:GetChildren()) do
-        if config.removePostEffects and v:IsA("PostEffect") then
-            v.Enabled = false
-        end
-        if config.removeBloom and v:IsA("BloomEffect") then
-            v.Enabled = false
-        elseif config.removeSunRays and v:IsA("SunRaysEffect") then
-            v.Enabled = false
-        end
-    end
-    if config.flatLighting then
-        Lighting.Ambient = Color3.fromRGB(180, 180, 180)
-        Lighting.OutdoorAmbient = Color3.fromRGB(180, 180, 180)
-        Lighting.Brightness = 2
-        Lighting.EnvironmentDiffuseScale = 0
-        Lighting.EnvironmentSpecularScale = 0
-        Lighting.ClockTime = 14
-        Lighting.GeographicLatitude = 0
-    end
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 340, 0, 200)
+mainFrame.Position = UDim2.new(0.5, -170, 0.5, -100)
+mainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
+mainFrame.BorderSizePixel = 0
+mainFrame.Parent = screenGui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = mainFrame
+
+-- # เส้นขอบสีรุ้ง
+local stroke = Instance.new("UIStroke")
+stroke.Thickness = 2
+stroke.Color = Color3.fromRGB(0, 255, 180)
+stroke.Parent = mainFrame
+
+-- # หัวข้อ
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 44)
+title.BackgroundTransparency = 1
+title.Text = "⚡ SAIKUTO BOOT ⚡"
+title.TextColor3 = Color3.fromRGB(0, 255, 180)
+title.TextScaled = true
+title.Font = Enum.Font.GothamBold
+title.Parent = mainFrame
+
+-- # เส้นคั่น
+local divider = Instance.new("Frame")
+divider.Size = UDim2.new(1, -20, 0, 2)
+divider.Position = UDim2.new(0, 10, 0, 44)
+divider.BorderSizePixel = 0
+divider.BackgroundColor3 = Color3.fromRGB(0, 255, 180)
+divider.Parent = mainFrame
+
+local divCorner = Instance.new("UICorner")
+divCorner.CornerRadius = UDim.new(1, 0)
+divCorner.Parent = divider
+
+-- # พื้นที่ log
+local logFrame = Instance.new("ScrollingFrame")
+logFrame.Size = UDim2.new(1, -20, 1, -120)
+logFrame.Position = UDim2.new(0, 10, 0, 54)
+logFrame.BackgroundTransparency = 1
+logFrame.BorderSizePixel = 0
+logFrame.ScrollBarThickness = 3
+logFrame.ScrollBarImageColor3 = Color3.fromRGB(255, 100, 200)
+logFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+logFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+logFrame.Parent = mainFrame
+
+local layout = Instance.new("UIListLayout")
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.Padding = UDim.new(0, 4)
+layout.Parent = logFrame
+
+-- # แถบ progress
+local progressBg = Instance.new("Frame")
+progressBg.Size = UDim2.new(1, -20, 0, 10)
+progressBg.Position = UDim2.new(0, 10, 1, -36)
+progressBg.BackgroundColor3 = Color3.fromRGB(40, 40, 55)
+progressBg.BorderSizePixel = 0
+progressBg.Parent = mainFrame
+
+local pbCorner = Instance.new("UICorner")
+pbCorner.CornerRadius = UDim.new(1, 0)
+pbCorner.Parent = progressBg
+
+local progressFill = Instance.new("Frame")
+progressFill.Size = UDim2.new(0, 0, 1, 0)
+progressFill.BackgroundColor3 = Color3.fromRGB(0, 255, 180)
+progressFill.BorderSizePixel = 0
+progressFill.Parent = progressBg
+
+local pfCorner = Instance.new("UICorner")
+pfCorner.CornerRadius = UDim.new(1, 0)
+pfCorner.Parent = progressFill
+
+-- # สถานะ
+local statusLabel = Instance.new("TextLabel")
+statusLabel.Size = UDim2.new(1, -20, 0, 16)
+statusLabel.Position = UDim2.new(0, 10, 1, -56)
+statusLabel.BackgroundTransparency = 1
+statusLabel.Text = "กำลังเริ่มต้น..."
+statusLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+statusLabel.TextSize = 12
+statusLabel.Font = Enum.Font.Gotham
+statusLabel.TextXAlignment = Enum.TextXAlignment.Left
+statusLabel.Parent = mainFrame
+
+-- # ===== ฟังก์ชัน log =====
+local logCount = 0
+local function addLog(text, color)
+    logCount = logCount + 1
+    local log = Instance.new("TextLabel")
+    log.Size = UDim2.new(1, 0, 0, 16)
+    log.BackgroundTransparency = 1
+    log.Text = "  " .. text
+    log.TextColor3 = color or Color3.fromRGB(180, 180, 180)
+    log.TextSize = 12
+    log.Font = Enum.Font.Code
+    log.TextXAlignment = Enum.TextXAlignment.Left
+    log.LayoutOrder = logCount
+    log.Parent = logFrame
 end
 
--- # ฟังก์ชันลบ texture/decal/effect
-local function optimizeWorkspace()
-    for _, obj in pairs(Workspace:GetDescendants()) do
-        if obj and obj.Parent then
-            if config.removeTextures and obj:IsA("Texture") then
-                obj:Destroy()
-            elseif config.removeDecals and obj:IsA("Decal") then
-                obj:Destroy()
-            elseif config.removeParticles and obj:IsA("ParticleEmitter") then
-                obj:Destroy()
-            elseif config.removeFireSmoke and obj:IsA("Fire") then
-                obj:Destroy()
-            elseif config.removeFireSmoke and obj:IsA("Smoke") then
-                obj:Destroy()
-            elseif config.removeFireSmoke and obj:IsA("Sparkles") then
-                obj:Destroy()
-            elseif config.removeParticles and obj:IsA("Beam") then
-                obj:Destroy()
-            elseif config.removeParticles and obj:IsA("Trail") then
-                obj:Destroy()
-            elseif config.removeShadows and obj:IsA("PointLight") then
-                obj.Shadows = false
-            elseif config.removeShadows and obj:IsA("SpotLight") then
-                obj.Shadows = false
-            end
-        end
-    end
-
-    local terrain = Workspace:FindFirstChildOfClass("Terrain")
-    if terrain and config.removeDecals then
-        for _, d in pairs(terrain:GetChildren()) do
-            if d and d.Parent and (d:IsA("Decal") or d:IsA("Texture")) then
-                d:Destroy()
-            end
-        end
-    end
+local function setProgress(p)
+    progressFill:TweenSize(
+        UDim2.new(p / 100, 0, 1, 0),
+        Enum.EasingDirection.Out,
+        Enum.EasingStyle.Quad,
+        0.35,
+        true
+    )
 end
 
--- # ฟังก์ชันลดคุณภาพ + FPS
-local function boostFPS()
-    if config.lowestQuality then
-        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-        settings().Rendering.MeshPartDetailLevel = Enum.MeshPartDetailLevel.Level01
-    end
-    if config.boostFPS then
-        settings().Physics.ThrottleAdjustTime = 0
-    end
+local function setStatus(t)
+    statusLabel.Text = t
 end
 
--- # ฟังก์ชันรวม กันแครช
-local function runAll()
-    pcall(optimizeLighting)
-    pcall(optimizeWorkspace)
-    pcall(boostFPS)
+-- # ===== Rainbow Animation (ปรับพอดี) =====
+local hue = 0
+local rainbowConn = RunService.RenderStepped:Connect(function(dt)
+    hue = (hue + dt * 0.12) % 1   -- ปรับความเร็วตรงนี้
+
+    local c1 = Color3.fromHSV(hue, 0.85, 1)
+    local c2 = Color3.fromHSV((hue + 0.33) % 1, 0.85, 1)
+    local c3 = Color3.fromHSV((hue + 0.66) % 1, 0.85, 1)
+
+    title.TextColor3 = c1
+    stroke.Color = c2
+    divider.BackgroundColor3 = c3
+    progressFill.BackgroundColor3 = c1
+    logFrame.ScrollBarImageColor3 = c2
+    statusLabel.TextColor3 = Color3.fromRGB(
+        200 + math.sin(hue * math.pi * 2) * 50,
+        200 + math.sin((hue + 0.33) * math.pi * 2) * 50,
+        200 + math.sin((hue + 0.66) * math.pi * 2) * 50
+    )
+end)
+
+-- # ===== ปิด UI =====
+local function closeUI(delayTime)
+    task.wait(delayTime or 3)
+    setStatus("เสร็จสิ้น กำลังปิด...")
+    task.wait(1)
+
+    if rainbowConn then rainbowConn:Disconnect() end
+
+    mainFrame:TweenPosition(
+        UDim2.new(0.5, -170, 1.5, 0),
+        Enum.EasingDirection.In,
+        Enum.EasingStyle.Quad,
+        0.5,
+        true
+    )
+    task.wait(0.6)
+    screenGui:Destroy()
 end
 
--- # ฟังก์ชันหลัก
-local function main()
-    -- # กันรันซ้ำ
-    if getgenv and getgenv().SaikutoRunning then
-        return
+-- # ปุ่ม ESC
+UserInputService.InputBegan:Connect(function(input, processed)
+    if processed then return end
+    if input.KeyCode == Enum.KeyCode.Escape then
+        if rainbowConn then rainbowConn:Disconnect() end
+        screenGui:Destroy()
     end
-    if getgenv then
-        getgenv().SaikutoRunning = true
-    end
+end)
 
-    -- # หน่วงก่อนเริ่ม
-    if config.startDelay > 0 then
-        task.wait(config.startDelay)
-    end
+-- # ===== Boot sequence (ปรับจังหวะพอดี) =====
+addLog("[BOOT] เริ่มระบบ Saikuto...", Color3.fromRGB(255, 100, 200))
+setProgress(5)
+task.wait(0.4)
 
-    -- # เริ่มทำงาน
-    runAll()
+addLog("[OK] โหลด UI สำเร็จ", Color3.fromRGB(100, 255, 180))
+setProgress(15)
+setStatus("กำลังเตรียมปรับกราฟิก...")
+task.wait(0.4)
 
-    pcall(function()
-        StarterGui:SetCore("SendNotification", {
-            Title = "Saikuto",
-            Text = "โลกกลายเป็นดินน้ำมันแล้ว!",
-            Duration = 5,
-        })
-    end)
+addLog("[OK] เชื่อมต่อ Workspace", Color3.fromRGB(100, 255, 180))
+setProgress(30)
+task.wait(0.35)
 
-    -- # auto re-run
-    if config.autoRerun then
-        task.spawn(function()
-            while task.wait(config.rerunInterval + math.random(0, config.rerunJitter)) do
-                if getgenv and not getgenv().SaikutoRunning then
-                    break
-                end
-                pcall(runAll)
-            end
-        end)
-    end
-end
+addLog("[..] กำลังลบ texture/decal", Color3.fromRGB(255, 220, 100))
+setProgress(50)
+task.wait(0.5)
 
--- # เรียกฟังก์ชันหลัก
-main()
+addLog("[OK] ลบ texture/decal สำเร็จ", Color3.fromRGB(100, 255, 180))
+setProgress(65)
+task.wait(0.35)
+
+addLog("[..] กำลังปิด effect ทั้งหมด", Color3.fromRGB(255, 220, 100))
+setProgress(80)
+task.wait(0.45)
+
+addLog("[OK] ปิด particle/ไฟ/ควัน สำเร็จ", Color3.fromRGB(100, 255, 180))
+setProgress(90)
+task.wait(0.35)
+
+addLog("[..] กำลังปรับแสง + FPS", Color3.fromRGB(255, 220, 100))
+setProgress(100)
+task.wait(0.45)
+
+addLog("[DONE] ระบบทำงานเต็มที่!", Color3.fromRGB(255, 100, 200))
+setStatus("✅ เสร็จสิ้น - โลกกลายเป็นดินน้ำมัน")
+
+-- # ปิดอัตโนมัติ
+task.spawn(function()
+    closeUI(3)
+end)
