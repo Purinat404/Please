@@ -1,256 +1,179 @@
 -- # ภาษาไทยข้อมูล
--- UI Boot MCore พร้อมโลโก้จริง + สีรุ้งวิ่งรอบ
--- Asset ID: 107020567366530
--- ปลอดภัย ไม่แตะระบบเกม
+-- โลโก้ MCore สีฟ้า-เงิน-ดำ เหมือนในรูป
+-- ทำจาก UI เอง ไม่โหลด asset
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
 local LocalPlayer = Players.LocalPlayer
 
 -- # ลบ UI เก่า
-local oldGui = LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("MCoreBootUI")
+local oldGui = LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("MCoreLogoUI")
 if oldGui then oldGui:Destroy() end
 
--- # ===== สร้าง GUI =====
+-- # สร้าง GUI
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "MCoreBootUI"
+screenGui.Name = "MCoreLogoUI"
 screenGui.ResetOnSpawn = false
-screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
+-- # กรอบหลัก พื้นดำ
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 360, 0, 380)
-mainFrame.Position = UDim2.new(0.5, -180, 0.5, -190)
+mainFrame.Size = UDim2.new(0, 260, 0, 280)
+mainFrame.Position = UDim2.new(0.5, -130, 0.5, -140)
 mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
-mainFrame.BackgroundTransparency = 0.1
+mainFrame.BackgroundTransparency = 0.05
 mainFrame.BorderSizePixel = 0
 mainFrame.Parent = screenGui
 
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 14)
-corner.Parent = mainFrame
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 14)
+mainCorner.Parent = mainFrame
 
--- # เส้นขอบสีรุ้ง
-local stroke = Instance.new("UIStroke")
-stroke.Thickness = 2
-stroke.Color = Color3.fromRGB(0, 150, 255)
-stroke.Parent = mainFrame
+-- # เส้นขอบฟ้าเรืองแสง
+local mainStroke = Instance.new("UIStroke")
+mainStroke.Thickness = 2
+mainStroke.Color = Color3.fromRGB(0, 150, 255)
+mainStroke.Transparency = 0.2
+mainStroke.Parent = mainFrame
 
--- # ===== โลโก้ =====
-local logoFrame = Instance.new("Frame")
-logoFrame.Size = UDim2.new(0, 180, 0, 180)
-logoFrame.Position = UDim2.new(0.5, -90, 0, 15)
-logoFrame.BackgroundTransparency = 1
-logoFrame.Parent = mainFrame
+-- # ===== วงแหวนฟ้าเข้ม =====
+local ring = Instance.new("Frame")
+ring.Size = UDim2.new(0, 180, 0, 180)
+ring.Position = UDim2.new(0.5, -90, 0, 15)
+ring.BackgroundTransparency = 1
+ring.Parent = mainFrame
 
-local logo = Instance.new("ImageLabel")
-logo.Name = "Logo"
-logo.Size = UDim2.new(1, 0, 1, 0)
-logo.BackgroundTransparency = 1
-logo.Image = "rbxassetid://107020567366530"
-logo.ScaleType = Enum.ScaleType.Fit
-logo.Parent = logoFrame
+local ringCorner = Instance.new("UICorner")
+ringCorner.CornerRadius = UDim.new(1, 0)
+ringCorner.Parent = ring
 
--- # วงแหวนเรืองแสงรอบโลโก้
-local glowRing = Instance.new("ImageLabel")
-glowRing.Name = "GlowRing"
-glowRing.Size = UDim2.new(1, 20, 1, 20)
-glowRing.Position = UDim2.new(0, -10, 0, -10)
-glowRing.BackgroundTransparency = 1
-glowRing.Image = "rbxassetid://5028857084"   -- วงแหวน glow
-glowRing.ImageColor3 = Color3.fromRGB(0, 150, 255)
-glowRing.ImageTransparency = 0.3
-glowRing.ZIndex = 0
-glowRing.Parent = logoFrame
+local ringStroke = Instance.new("UIStroke")
+ringStroke.Thickness = 3
+ringStroke.Color = Color3.fromRGB(0, 100, 220)
+ringStroke.Parent = ring
 
--- # ===== ชื่อ M-CORE =====
+-- # ===== ตัว M สีเงินขาว ขอบฟ้า =====
+local function makeLeg(size, pos, rot)
+    local leg = Instance.new("Frame")
+    leg.Size = size
+    leg.Position = pos
+    leg.BackgroundColor3 = Color3.fromRGB(230, 235, 245)   -- เงินขาว
+    leg.BorderSizePixel = 0
+    leg.Rotation = rot
+    leg.Parent = ring
+
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, 4)
+    c.Parent = leg
+
+    -- # ขอบฟ้าเรืองแสง
+    local s = Instance.new("UIStroke")
+    s.Thickness = 1.5
+    s.Color = Color3.fromRGB(0, 150, 255)
+    s.Transparency = 0.3
+    s.Parent = leg
+
+    return leg
+end
+
+local leftLeg  = makeLeg(UDim2.new(0, 18, 0, 95), UDim2.new(0.5, -48, 0.5, -55), 15)
+local rightLeg = makeLeg(UDim2.new(0, 18, 0, 95), UDim2.new(0.5, 30, 0.5, -55), -15)
+local midLeft  = makeLeg(UDim2.new(0, 18, 0, 85), UDim2.new(0.5, -30, 0.5, -45), -15)
+local midRight = makeLeg(UDim2.new(0, 18, 0, 85), UDim2.new(0.5, 12, 0.5, -45), 15)
+
+-- # ===== มงกุฎ เงินขาว =====
+local crown = Instance.new("Frame")
+crown.Size = UDim2.new(0, 55, 0, 22)
+crown.Position = UDim2.new(0.5, -27, 0, 10)
+crown.BackgroundColor3 = Color3.fromRGB(220, 225, 235)   -- เงิน
+crown.BorderSizePixel = 0
+crown.Parent = ring
+
+local crownCorner = Instance.new("UICorner")
+crownCorner.CornerRadius = UDim.new(0, 3)
+crownCorner.Parent = crown
+
+local crownStroke = Instance.new("UIStroke")
+crownStroke.Thickness = 1.5
+crownStroke.Color = Color3.fromRGB(0, 150, 255)
+crownStroke.Transparency = 0.3
+crownStroke.Parent = crown
+
+-- # ยอดมงกุฎ 3 อัน
+for i = 1, 3 do
+    local spike = Instance.new("Frame")
+    spike.Size = UDim2.new(0, 12, 0, 14)
+    spike.Position = UDim2.new(0, (i - 1) * 16 + 6, 0, -10)
+    spike.BackgroundColor3 = Color3.fromRGB(220, 225, 235)
+    spike.BorderSizePixel = 0
+    spike.Rotation = 45
+    spike.Parent = crown
+
+    local sc = Instance.new("UICorner")
+    sc.CornerRadius = UDim.new(0, 2)
+    sc.Parent = spike
+
+    local ss = Instance.new("UIStroke")
+    ss.Thickness = 1
+    ss.Color = Color3.fromRGB(0, 150, 255)
+    ss.Transparency = 0.4
+    ss.Parent = spike
+end
+
+-- # ===== ชื่อ M-CORE ฟ้าเรืองแสง =====
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 36)
-title.Position = UDim2.new(0, 0, 0, 200)
+title.Size = UDim2.new(1, 0, 0, 34)
+title.Position = UDim2.new(0, 0, 0, 210)
 title.BackgroundTransparency = 1
 title.Text = "M-CORE"
-title.TextColor3 = Color3.fromRGB(0, 200, 255)
+title.TextColor3 = Color3.fromRGB(0, 180, 255)
 title.TextScaled = true
 title.Font = Enum.Font.GothamBlack
 title.Parent = mainFrame
 
+-- # ขอบฟ้าเรืองแสงใต้ชื่อ
+local titleStroke = Instance.new("UIStroke")
+titleStroke.Thickness = 1.5
+titleStroke.Color = Color3.fromRGB(0, 100, 220)
+titleStroke.Transparency = 0.4
+titleStroke.Parent = title
+
 -- # คำโปรย
 local subtitle = Instance.new("TextLabel")
 subtitle.Size = UDim2.new(1, 0, 0, 18)
-subtitle.Position = UDim2.new(0, 0, 0, 236)
+subtitle.Position = UDim2.new(0, 0, 0, 245)
 subtitle.BackgroundTransparency = 1
 subtitle.Text = "— PRO SYSTEM —"
-subtitle.TextColor3 = Color3.fromRGB(180, 180, 200)
+subtitle.TextColor3 = Color3.fromRGB(140, 160, 200)
 subtitle.TextSize = 12
 subtitle.Font = Enum.Font.Gotham
 subtitle.Parent = mainFrame
 
--- # เส้นคั่น
-local divider = Instance.new("Frame")
-divider.Size = UDim2.new(1, -40, 0, 1)
-divider.Position = UDim2.new(0, 20, 0, 260)
-divider.BorderSizePixel = 0
-divider.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
-divider.Parent = mainFrame
-
--- # ===== พื้นที่ log =====
-local logFrame = Instance.new("ScrollingFrame")
-logFrame.Size = UDim2.new(1, -40, 0, 55)
-logFrame.Position = UDim2.new(0, 20, 0, 270)
-logFrame.BackgroundTransparency = 1
-logFrame.BorderSizePixel = 0
-logFrame.ScrollBarThickness = 2
-logFrame.ScrollBarImageColor3 = Color3.fromRGB(255, 100, 200)
-logFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-logFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
-logFrame.Parent = mainFrame
-
-local layout = Instance.new("UIListLayout")
-layout.SortOrder = Enum.SortOrder.LayoutOrder
-layout.Padding = UDim.new(0, 3)
-layout.Parent = logFrame
-
--- # ===== แถบ progress =====
-local progressBg = Instance.new("Frame")
-progressBg.Size = UDim2.new(1, -40, 0, 8)
-progressBg.Position = UDim2.new(0, 20, 1, -26)
-progressBg.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
-progressBg.BorderSizePixel = 0
-progressBg.Parent = mainFrame
-
-local pbCorner = Instance.new("UICorner")
-pbCorner.CornerRadius = UDim.new(1, 0)
-pbCorner.Parent = progressBg
-
-local progressFill = Instance.new("Frame")
-progressFill.Size = UDim2.new(0, 0, 1, 0)
-progressFill.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
-progressFill.BorderSizePixel = 0
-progressFill.Parent = progressBg
-
-local pfCorner = Instance.new("UICorner")
-pfCorner.CornerRadius = UDim.new(1, 0)
-pfCorner.Parent = progressFill
-
--- # ===== ฟังก์ชัน log =====
-local logCount = 0
-local function addLog(text, color)
-    logCount = logCount + 1
-    local log = Instance.new("TextLabel")
-    log.Size = UDim2.new(1, 0, 0, 14)
-    log.BackgroundTransparency = 1
-    log.Text = "  " .. text
-    log.TextColor3 = color or Color3.fromRGB(180, 180, 180)
-    log.TextSize = 11
-    log.Font = Enum.Font.Code
-    log.TextXAlignment = Enum.TextXAlignment.Left
-    log.LayoutOrder = logCount
-    log.Parent = logFrame
-end
-
-local function setProgress(p)
-    progressFill:TweenSize(
-        UDim2.new(p / 100, 0, 1, 0),
-        Enum.EasingDirection.Out,
-        Enum.EasingStyle.Quad,
-        0.35,
-        true
-    )
-end
-
--- # ===== Rainbow Animation =====
-local hue = 0
+-- # ===== อนิเมชันเรืองแสง (Pulse เบา ๆ) =====
+local glowHue = 0
 local rainbowConn = RunService.RenderStepped:Connect(function(dt)
-    hue = (hue + dt * 0.12) % 1
+    glowHue = (glowHue + dt * 0.4) % 1
 
-    local c1 = Color3.fromHSV(hue, 0.85, 1)
-    local c2 = Color3.fromHSV((hue + 0.5) % 1, 0.85, 1)
+    -- # เรืองแสงฟ้าแบบหายใจ
+    local pulse = 0.5 + math.sin(glowHue * math.pi * 2) * 0.5   -- 0 ถึง 1
+    local alpha = 0.1 + pulse * 0.4                              -- 0.1 ถึง 0.5
 
-    title.TextColor3 = c1
-    stroke.Color = c2
-    divider.BackgroundColor3 = c2
-    progressFill.BackgroundColor3 = c1
-    glowRing.ImageColor3 = c2
-    logFrame.ScrollBarImageColor3 = c1
+    mainStroke.Transparency = 1 - (0.7 + pulse * 0.3)
+    ringStroke.Transparency = 1 - (0.8 + pulse * 0.2)
+    titleStroke.Transparency = 0.3 + pulse * 0.3
+
+    -- # สีฟ้าเรืองแสงเปลี่ยนความสว่างเบา ๆ
+    local brightness = 0.7 + pulse * 0.3
+    mainStroke.Color = Color3.fromRGB(0, 150 * brightness, 255 * brightness)
+    ringStroke.Color = Color3.fromRGB(0, 100 * brightness, 220 * brightness)
 end)
 
--- # ===== อนิเมชันโลโก้ pulse =====
-local pulseUp = TweenService:Create(logoFrame, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-    Size = UDim2.new(0, 190, 0, 190),
-    Position = UDim2.new(0.5, -95, 0, 10)
-})
-local pulseDown = TweenService:Create(logoFrame, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-    Size = UDim2.new(0, 180, 0, 180),
-    Position = UDim2.new(0.5, -90, 0, 15)
-})
-
-task.spawn(function()
-    while logoFrame.Parent do
-        pulseUp:Play()
-        task.wait(1.2)
-        pulseDown:Play()
-        task.wait(1.2)
-    end
-end)
-
--- # ===== ปิด UI =====
-local function closeUI(delayTime)
-    task.wait(delayTime or 3)
-    if rainbowConn then rainbowConn:Disconnect() end
-    mainFrame:TweenPosition(
-        UDim2.new(0.5, -180, 1.5, 0),
-        Enum.EasingDirection.In,
-        Enum.EasingStyle.Quad,
-        0.5,
-        true
-    )
-    task.wait(0.6)
-    screenGui:Destroy()
-end
-
--- # ปุ่ม ESC
+-- # ปิดด้วย ESC
 UserInputService.InputBegan:Connect(function(input, processed)
     if processed then return end
     if input.KeyCode == Enum.KeyCode.Escape then
         if rainbowConn then rainbowConn:Disconnect() end
         screenGui:Destroy()
     end
-end)
-
--- # ===== Boot sequence =====
-addLog("[BOOT] เริ่มระบบ MCore...", Color3.fromRGB(0, 200, 255))
-setProgress(5)
-task.wait(0.4)
-
-addLog("[OK] โหลดโลโก้สำเร็จ", Color3.fromRGB(100, 255, 180))
-setProgress(20)
-task.wait(0.4)
-
-addLog("[OK] เชื่อมต่อ Workspace", Color3.fromRGB(100, 255, 180))
-setProgress(35)
-task.wait(0.35)
-
-addLog("[..] ลบ texture/decal", Color3.fromRGB(255, 220, 100))
-setProgress(50)
-task.wait(0.5)
-
-addLog("[OK] ลบ texture/decal สำเร็จ", Color3.fromRGB(100, 255, 180))
-setProgress(65)
-task.wait(0.35)
-
-addLog("[..] ปิด effect ทั้งหมด", Color3.fromRGB(255, 220, 100))
-setProgress(80)
-task.wait(0.45)
-
-addLog("[OK] ปรับแสง + FPS สำเร็จ", Color3.fromRGB(100, 255, 180))
-setProgress(100)
-task.wait(0.45)
-
-addLog("[DONE] MCore ทำงานเต็มที่!", Color3.fromRGB(255, 100, 200))
-
--- # ปิดอัตโนมัติ
-task.spawn(function()
-    closeUI(3)
 end)
