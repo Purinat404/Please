@@ -1,4 +1,4 @@
--- # ทดสอบโหลดรูป
+-- # ทดสอบโหลดรูป ID ใหม่
 local Players = game:GetService("Players")
 local gui = Instance.new("ScreenGui")
 gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -7,5 +7,5 @@ local img = Instance.new("ImageLabel")
 img.Size = UDim2.new(0, 300, 0, 300)
 img.Position = UDim2.new(0.5, -150, 0.5, -150)
 img.BackgroundTransparency = 1
-img.Image = "rbxassetid://107020567366530"
+img.Image = "rbxassetid://128134298378562"
 img.Parent = gui
