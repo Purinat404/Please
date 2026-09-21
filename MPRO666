@@ -1,0 +1,636 @@
+-- ============================================
+-- MPro RED v3 HARD EDITION
+-- By Purinat
+-- © 2026 Purinat
+-- Red-Dark Theme
+-- ============================================
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+local Tween = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
+local LP = Players.LocalPlayer
+local Cam = workspace.CurrentCamera
+
+pcall(function()
+    local o = LP:WaitForChild("PlayerGui"):FindFirstChild("MProHard")
+    if o then o:Destroy() end
+end)
+
+local cfg = {
+    fb=false, fog=false, xray=false, fov=70, time=14,
+    esp=true, name=true, hp=true, dist=true, aura=true, box=true, maxDist=500,
+    spd=false, spdV=30, jmp=false, jmpV=80, infJump=false, afk=true, noclip=false,
+    aim=false, aimRange=300, aimSmooth=0.15, aimPart="Head", aimFOV=90,
+    showFPS=true,
+}
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "MProHard"
+gui.ResetOnSpawn = false
+gui.DisplayOrder = 999
+gui.Parent = LP:WaitForChild("PlayerGui")
+
+-- M Button
+local btn = Instance.new("TextButton")
+btn.Size = UDim2.new(0,55,0,55)
+btn.Position = UDim2.new(1,-75,0,20)
+btn.BackgroundColor3 = Color3.fromRGB(12,5,5)
+btn.BorderSizePixel = 0
+btn.Text = "M"
+btn.TextColor3 = Color3.fromRGB(255,50,50)
+btn.TextSize = 26
+btn.Font = Enum.Font.GothamBlack
+btn.AutoButtonColor = false
+btn.Parent = gui
+local bc = Instance.new("UICorner") bc.CornerRadius = UDim.new(0,14) bc.Parent = btn
+local bs = Instance.new("UIStroke") bs.Thickness = 2 bs.Color = Color3.fromRGB(255,50,50) bs.Parent = btn
+local glow = Instance.new("UIStroke") glow.Thickness = 5 glow.Color = Color3.fromRGB(255,50,50) glow.Transparency = 0.7 glow.Parent = btn
+
+-- Menu Frame
+local menu = Instance.new("Frame")
+menu.Size = UDim2.new(0,380,0,420)
+menu.Position = UDim2.new(1,-400,0,80)
+menu.BackgroundColor3 = Color3.fromRGB(12,5,5)
+menu.BorderSizePixel = 0
+menu.Visible = false
+menu.Parent = gui
+local mc = Instance.new("UICorner") mc.CornerRadius = UDim.new(0,14) mc.Parent = menu
+local ms = Instance.new("UIStroke") ms.Thickness = 2 ms.Color = Color3.fromRGB(255,50,50) ms.Parent = menu
+
+-- Header
+local h = Instance.new("Frame")
+h.Size = UDim2.new(1,0,0,50)
+h.BackgroundColor3 = Color3.fromRGB(20,8,8)
+h.BorderSizePixel = 0
+h.Parent = menu
+local hc = Instance.new("UICorner") hc.CornerRadius = UDim.new(0,14) hc.Parent = h
+local hFix = Instance.new("Frame")
+hFix.Size = UDim2.new(1,0,0,15)
+hFix.Position = UDim2.new(0,0,1,-15)
+hFix.BackgroundColor3 = Color3.fromRGB(20,8,8)
+hFix.BorderSizePixel = 0
+hFix.Parent = h
+
+local logoBox = Instance.new("Frame")
+logoBox.Size = UDim2.new(0,36,0,36)
+logoBox.Position = UDim2.new(0,10,0,7)
+logoBox.BackgroundColor3 = Color3.fromRGB(12,5,5)
+logoBox.BorderSizePixel = 0
+logoBox.Parent = h
+local lbc = Instance.new("UICorner") lbc.CornerRadius = UDim.new(0,8) lbc.Parent = logoBox
+local lbs = Instance.new("UIStroke") lbs.Thickness = 2 lbs.Color = Color3.fromRGB(255,50,50) lbs.Parent = logoBox
+local lbT = Instance.new("TextLabel")
+lbT.Size = UDim2.new(1,0,1,0)
+lbT.BackgroundTransparency = 1
+lbT.Text = "M"
+lbT.TextColor3 = Color3.fromRGB(255,50,50)
+lbT.TextSize = 18
+lbT.Font = Enum.Font.GothamBlack
+lbT.Parent = logoBox
+
+local ht = Instance.new("TextLabel")
+ht.Size = UDim2.new(1,-130,0,22)
+ht.Position = UDim2.new(0,52,0,6)
+ht.BackgroundTransparency = 1
+ht.Text = "M-PRO RED | By Purinat"
+ht.TextColor3 = Color3.fromRGB(255,50,50)
+ht.TextSize = 15
+ht.Font = Enum.Font.GothamBlack
+ht.TextXAlignment = Enum.TextXAlignment.Left
+ht.Parent = h
+
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(1,-130,0,14)
+status.Position = UDim2.new(0,52,0,28)
+status.BackgroundTransparency = 1
+status.Text = "By Purinat | FPS: -- | Ping: --"
+status.TextColor3 = Color3.fromRGB(200,130,130)
+status.TextSize = 10
+status.Font = Enum.Font.Code
+status.TextXAlignment = Enum.TextXAlignment.Left
+status.Parent = h
+
+local xb = Instance.new("TextButton")
+xb.Size = UDim2.new(0,28,0,28)
+xb.Position = UDim2.new(1,-36,0,11)
+xb.BackgroundColor3 = Color3.fromRGB(40,15,15)
+xb.BorderSizePixel = 0
+xb.Text = "X"
+xb.TextColor3 = Color3.fromRGB(255,100,100)
+xb.TextSize = 14
+xb.Font = Enum.Font.GothamBold
+xb.Parent = h
+local xc = Instance.new("UICorner") xc.CornerRadius = UDim.new(0,8) xc.Parent = xb
+
+-- Tabs Row
+local tabsFrame = Instance.new("Frame")
+tabsFrame.Size = UDim2.new(1,-16,0,32)
+tabsFrame.Position = UDim2.new(0,8,0,56)
+tabsFrame.BackgroundTransparency = 1
+tabsFrame.Parent = menu
+
+local tabLayout = Instance.new("UIListLayout")
+tabLayout.FillDirection = Enum.FillDirection.Horizontal
+tabLayout.Padding = UDim.new(0,4)
+tabLayout.Parent = tabsFrame
+
+-- Content
+local sc = Instance.new("ScrollingFrame")
+sc.Size = UDim2.new(1,-16,1,-100)
+sc.Position = UDim2.new(0,8,0,92)
+sc.BackgroundTransparency = 1
+sc.BorderSizePixel = 0
+sc.ScrollBarThickness = 3
+sc.ScrollBarImageColor3 = Color3.fromRGB(255,50,50)
+sc.CanvasSize = UDim2.new(0,0,0,0)
+sc.AutomaticCanvasSize = Enum.AutomaticSize.Y
+sc.Parent = menu
+local ll = Instance.new("UIListLayout") ll.SortOrder = Enum.SortOrder.LayoutOrder ll.Padding = UDim.new(0,6) ll.Parent = sc
+
+-- Tab system
+local currentTab = "VISUAL"
+local tabButtons = {}
+local function switchTab(name)
+    currentTab = name
+    for tName, tBtn in pairs(tabButtons) do
+        if tName == name then
+            tBtn.BackgroundColor3 = Color3.fromRGB(255,50,50)
+            tBtn.TextColor3 = Color3.fromRGB(255,255,255)
+        else
+            tBtn.BackgroundColor3 = Color3.fromRGB(30,12,12)
+            tBtn.TextColor3 = Color3.fromRGB(200,130,130)
+        end
+    end
+    for _, child in pairs(sc:GetChildren()) do
+        if child:IsA("Frame") or child:IsA("TextLabel") then
+            local tab = child:GetAttribute("Tab")
+            if tab then
+                child.Visible = (tab == name)
+            end
+        end
+    end
+end
+
+local function makeTabBtn(name, order)
+    local tb = Instance.new("TextButton")
+    tb.Size = UDim2.new(0,82,0,28)
+    tb.BackgroundColor3 = Color3.fromRGB(30,12,12)
+    tb.BorderSizePixel = 0
+    tb.Text = name
+    tb.TextColor3 = Color3.fromRGB(200,130,130)
+    tb.TextSize = 11
+    tb.Font = Enum.Font.GothamBold
+    tb.AutoButtonColor = false
+    tb.LayoutOrder = order
+    tb.Parent = tabsFrame
+    local tc = Instance.new("UICorner") tc.CornerRadius = UDim.new(0,7) tc.Parent = tb
+    local ts = Instance.new("UIStroke") ts.Thickness = 1 ts.Color = Color3.fromRGB(80,20,20) ts.Transparency = 0.5 ts.Parent = tb
+    tb.MouseButton1Click:Connect(function() switchTab(name) end)
+    tabButtons[name] = tb
+end
+
+local function makeSection(text, tab)
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1,-8,0,24)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = "  ▸ "..text
+    lbl.TextColor3 = Color3.fromRGB(255,50,50)
+    lbl.TextSize = 12
+    lbl.Font = Enum.Font.GothamBold
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl:SetAttribute("Tab", tab)
+    lbl.Parent = sc
+end
+
+local function makeToggle(text, default, tab, callback)
+    local row = Instance.new("Frame")
+    row.Size = UDim2.new(1,-8,0,36)
+    row.BackgroundColor3 = Color3.fromRGB(20,8,8)
+    row.BorderSizePixel = 0
+    row:SetAttribute("Tab", tab)
+    row.Parent = sc
+    local rc = Instance.new("UICorner") rc.CornerRadius = UDim.new(0,8) rc.Parent = row
+    local rs = Instance.new("UIStroke") rs.Thickness = 1 rs.Color = Color3.fromRGB(80,20,20) rs.Transparency = 0.5 rs.Parent = row
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1,-70,1,0)
+    label.Position = UDim2.new(0,12,0,0)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = Color3.fromRGB(230,200,200)
+    label.TextSize = 13
+    label.Font = Enum.Font.Gotham
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = row
+    local toggle = Instance.new("TextButton")
+    toggle.Size = UDim2.new(0,44,0,22)
+    toggle.Position = UDim2.new(1,-54,0.5,-11)
+    toggle.BackgroundColor3 = default and Color3.fromRGB(255,50,50) or Color3.fromRGB(50,25,25)
+    toggle.BorderSizePixel = 0
+    toggle.Text = ""
+    toggle.AutoButtonColor = false
+    toggle.Parent = row
+    local tc = Instance.new("UICorner") tc.CornerRadius = UDim.new(1,0) tc.Parent = toggle
+    local knob = Instance.new("Frame")
+    knob.Size = UDim2.new(0,18,0,18)
+    knob.Position = default and UDim2.new(1,-20,0.5,-9) or UDim2.new(0,2,0.5,-9)
+    knob.BackgroundColor3 = Color3.fromRGB(255,255,255)
+    knob.BorderSizePixel = 0
+    knob.Parent = toggle
+    local kc = Instance.new("UICorner") kc.CornerRadius = UDim.new(1,0) kc.Parent = knob
+    local state = default
+    toggle.MouseButton1Click:Connect(function()
+        state = not state
+        Tween:Create(toggle,TweenInfo.new(0.2),{BackgroundColor3 = state and Color3.fromRGB(255,50,50) or Color3.fromRGB(50,25,25)}):Play()
+        Tween:Create(knob,TweenInfo.new(0.2),{Position = state and UDim2.new(1,-20,0.5,-9) or UDim2.new(0,2,0.5,-9)}):Play()
+        if callback then callback(state) end
+    end)
+end
+
+local function makeSlider(text, minVal, maxVal, default, tab, callback)
+    local row = Instance.new("Frame")
+    row.Size = UDim2.new(1,-8,0,56)
+    row.BackgroundColor3 = Color3.fromRGB(20,8,8)
+    row.BorderSizePixel = 0
+    row:SetAttribute("Tab", tab)
+    row.Parent = sc
+    local rc = Instance.new("UICorner") rc.CornerRadius = UDim.new(0,8) rc.Parent = row
+    local rs = Instance.new("UIStroke") rs.Thickness = 1 rs.Color = Color3.fromRGB(80,20,20) rs.Transparency = 0.5 rs.Parent = row
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1,-20,0,20)
+    label.Position = UDim2.new(0,12,0,6)
+    label.BackgroundTransparency = 1
+    label.Text = text..": "..default
+    label.TextColor3 = Color3.fromRGB(230,200,200)
+    label.TextSize = 13
+    label.Font = Enum.Font.Gotham
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = row
+    local bar = Instance.new("Frame")
+    bar.Size = UDim2.new(1,-24,0,6)
+    bar.Position = UDim2.new(0,12,0,38)
+    bar.BackgroundColor3 = Color3.fromRGB(50,25,25)
+    bar.BorderSizePixel = 0
+    bar.Parent = row
+    local bc2 = Instance.new("UICorner") bc2.CornerRadius = UDim.new(1,0) bc2.Parent = bar
+    local fill = Instance.new("Frame")
+    fill.Size = UDim2.new((default-minVal)/(maxVal-minVal),0,1,0)
+    fill.BackgroundColor3 = Color3.fromRGB(255,50,50)
+    fill.BorderSizePixel = 0
+    fill.Parent = bar
+    local fc = Instance.new("UICorner") fc.CornerRadius = UDim.new(1,0) fc.Parent = fill
+    local dragging = false
+    local function upd(x)
+        local rel = math.clamp((x-bar.AbsolutePosition.X)/bar.AbsoluteSize.X,0,1)
+        local val = math.floor(minVal+(maxVal-minVal)*rel)
+        fill.Size = UDim2.new(rel,0,1,0)
+        label.Text = text..": "..val
+        if callback then callback(val) end
+    end
+    bar.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then dragging = true upd(i.Position.X) end
+    end)
+    bar.InputEnded:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then dragging = false end
+    end)
+    UIS.InputChanged:Connect(function(i)
+        if dragging and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then upd(i.Position.X) end
+    end)
+end
+
+-- Tabs
+makeTabBtn("VISUAL", 1)
+makeTabBtn("ESP", 2)
+makeTabBtn("PLAYER", 3)
+makeTabBtn("AIM", 4)
+
+-- VISUAL Tab
+makeSection("ปรับภาพ", "VISUAL")
+makeToggle("Fullbright", cfg.fb, "VISUAL", function(v)
+    cfg.fb = v
+    if v then
+        Lighting.Ambient = Color3.fromRGB(180,180,180)
+        Lighting.OutdoorAmbient = Color3.fromRGB(180,180,180)
+        Lighting.Brightness = 3
+    else
+        Lighting.Ambient = Color3.fromRGB(70,70,70)
+        Lighting.OutdoorAmbient = Color3.fromRGB(128,128,128)
+        Lighting.Brightness = 2
+    end
+end)
+makeToggle("ปิดหมอก", cfg.fog, "VISUAL", function(v)
+    cfg.fog = v
+    if v then Lighting.FogEnd = 100000 Lighting.FogStart = 100000 end
+end)
+makeToggle("X-Ray", cfg.xray, "VISUAL", function(v)
+    cfg.xray = v
+    for _, obj in pairs(workspace:GetDescendants()) do
+        pcall(function()
+            if obj:IsA("BasePart") then obj.LocalTransparencyModifier = v and 0.7 or 0 end
+        end)
+    end
+end)
+makeSlider("FOV", 50, 120, cfg.fov, "VISUAL", function(v) cfg.fov = v Cam.FieldOfView = v end)
+makeSlider("เวลา (ClockTime)", 0, 24, cfg.time, "VISUAL", function(v) cfg.time = v Lighting.ClockTime = v end)
+
+-- ESP Tab
+makeSection("ระบบมองเห็น", "ESP")
+makeToggle("เปิด ESP", cfg.esp, "ESP", function(v) cfg.esp = v end)
+makeToggle("โชว์ชื่อ", cfg.name, "ESP", function(v) cfg.name = v end)
+makeToggle("โชว์เลือด", cfg.hp, "ESP", function(v) cfg.hp = v end)
+makeToggle("โชว์ระยะ", cfg.dist, "ESP", function(v) cfg.dist = v end)
+makeToggle("Aura รอบตัว", cfg.aura, "ESP", function(v) cfg.aura = v end)
+makeToggle("กล่องรอบตัว", cfg.box, "ESP", function(v) cfg.box = v end)
+makeSlider("ระยะ ESP", 50, 2000, cfg.maxDist, "ESP", function(v) cfg.maxDist = v end)
+
+-- PLAYER Tab
+makeSection("ตัวละคร", "PLAYER")
+makeToggle("เพิ่มความเร็ว", cfg.spd, "PLAYER", function(v) cfg.spd = v end)
+makeSlider("ความเร็ว", 16, 200, cfg.spdV, "PLAYER", function(v) cfg.spdV = v end)
+makeToggle("กระโดดสูง", cfg.jmp, "PLAYER", function(v) cfg.jmp = v end)
+makeSlider("ความสูงกระโดด", 50, 200, cfg.jmpV, "PLAYER", function(v) cfg.jmpV = v end)
+makeToggle("Infinite Jump", cfg.infJump, "PLAYER", function(v) cfg.infJump = v end)
+makeToggle("Anti-AFK", cfg.afk, "PLAYER", function(v) cfg.afk = v end)
+makeToggle("No Clip", cfg.noclip, "PLAYER", function(v)
+    cfg.noclip = v
+    if v then
+        local char = LP.Character
+        if char then
+            for _, p in pairs(char:GetDescendants()) do
+                if p:IsA("BasePart") and p.CanCollide then p.CanCollide = false end
+            end
+        end
+    end
+end)
+
+-- AIM Tab
+makeSection("Aim Lock", "AIM")
+makeToggle("เปิด Aim Lock (Q)", cfg.aim, "AIM", function(v) cfg.aim = v end)
+makeSlider("ระยะล็อค", 50, 1000, cfg.aimRange, "AIM", function(v) cfg.aimRange = v end)
+makeSlider("ความนุ่ม (x100)", 1, 30, cfg.aimSmooth*100, "AIM", function(v) cfg.aimSmooth = v/100 end)
+makeSlider("FOV ล็อค", 10, 180, cfg.aimFOV, "AIM", function(v) cfg.aimFOV = v end)
+
+-- Menu toggle
+local menuOpen = false
+local function toggleMenu()
+    menuOpen = not menuOpen
+    menu.Visible = menuOpen
+end
+btn.MouseButton1Click:Connect(toggleMenu)
+xb.MouseButton1Click:Connect(toggleMenu)
+
+-- Drag
+local dragging = false
+local dragStart, startPos
+h.InputBegan:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+        dragging = true dragStart = i.Position startPos = menu.Position
+    end
+end)
+UIS.InputChanged:Connect(function(i)
+    if dragging and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+        local d = i.Position - dragStart
+        menu.Position = UDim2.new(startPos.X.Scale,startPos.X.Offset+d.X,startPos.Y.Scale,startPos.Y.Offset+d.Y)
+    end
+end)
+UIS.InputEnded:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then dragging = false end
+end)
+
+-- ESP
+local espCache = {}
+local function clearESP(plr)
+    local keys = {plr, plr.."_name", plr.."_dist", plr.."_hb", plr.."_hf", plr.."_hl", plr.."_box"}
+    for _, k in ipairs(keys) do
+        if espCache[k] then
+            pcall(function() espCache[k]:Destroy() end)
+            espCache[k] = nil
+        end
+    end
+end
+
+local function createESP(plr)
+    if plr == LP then return end
+    clearESP(plr)
+    local bb = Instance.new("BillboardGui")
+    bb.Size = UDim2.new(0,200,0,55)
+    bb.StudsOffset = Vector3.new(0,3,0)
+    bb.AlwaysOnTop = true
+    bb.Parent = gui
+    local nameL = Instance.new("TextLabel")
+    nameL.Size = UDim2.new(1,0,0,18)
+    nameL.BackgroundTransparency = 1
+    nameL.Text = plr.Name
+    nameL.TextColor3 = Color3.fromRGB(255,80,80)
+    nameL.TextStrokeTransparency = 0
+    nameL.TextStrokeColor3 = Color3.fromRGB(0,0,0)
+    nameL.TextSize = 13
+    nameL.Font = Enum.Font.GothamBold
+    nameL.Parent = bb
+    local distL = Instance.new("TextLabel")
+    distL.Size = UDim2.new(1,0,0,14)
+    distL.Position = UDim2.new(0,0,0,18)
+    distL.BackgroundTransparency = 1
+    distL.Text = ""
+    distL.TextColor3 = Color3.fromRGB(220,180,180)
+    distL.TextStrokeTransparency = 0
+    distL.TextSize = 11
+    distL.Font = Enum.Font.Gotham
+    distL.Parent = bb
+    local hb = Instance.new("Frame")
+    hb.Size = UDim2.new(0,100,0,6)
+    hb.Position = UDim2.new(0.5,-50,0,36)
+    hb.BackgroundColor3 = Color3.fromRGB(30,10,10)
+    hb.BorderSizePixel = 0
+    hb.Parent = bb
+    local hbc = Instance.new("UICorner") hbc.CornerRadius = UDim.new(1,0) hbc.Parent = hb
+    local hf = Instance.new("Frame")
+    hf.Size = UDim2.new(1,0,1,0)
+    hf.BackgroundColor3 = Color3.fromRGB(0,255,100)
+    hf.BorderSizePixel = 0
+    hf.Parent = hb
+    local hfc = Instance.new("UICorner") hfc.CornerRadius = UDim.new(1,0) hfc.Parent = hf
+    local hl = Instance.new("Highlight")
+    hl.FillColor = Color3.fromRGB(255,50,50)
+    hl.FillTransparency = 0.6
+    hl.OutlineColor = Color3.fromRGB(255,100,100)
+    hl.OutlineTransparency = 0
+    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    hl.Parent = gui
+    espCache[plr] = bb
+    espCache[plr.."_name"] = nameL
+    espCache[plr.."_dist"] = distL
+    espCache[plr.."_hb"] = hb
+    espCache[plr.."_hf"] = hf
+    espCache[plr.."_hl"] = hl
+end
+
+local function updateESP()
+    if not cfg.esp then
+        local toClear = {}
+        for k, v in pairs(espCache) do
+            if typeof(v) == "Instance" and not string.find(k, "_") then
+                table.insert(toClear, k)
+            end
+        end
+        for _, p in ipairs(toClear) do clearESP(p) end
+        return
+    end
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr == LP then continue end
+        local char = plr.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        if hrp and hum and hum.Health > 0 then
+            if not espCache[plr] then createESP(plr) end
+            local bb = espCache[plr]
+            if bb and bb.Parent then
+                bb.Adornee = hrp
+                local dist = (Cam.CFrame.Position - hrp.Position).Magnitude
+                bb.Enabled = dist <= cfg.maxDist
+                if espCache[plr.."_name"] then espCache[plr.."_name"].Visible = cfg.name end
+                if espCache[plr.."_dist"] then
+                    espCache[plr.."_dist"].Visible = cfg.dist
+                    espCache[plr.."_dist"].Text = math.floor(dist).." studs"
+                end
+                if espCache[plr.."_hb"] and espCache[plr.."_hf"] then
+                    espCache[plr.."_hb"].Visible = cfg.hp
+                    local pc = hum.Health / hum.MaxHealth
+                    espCache[plr.."_hf"].Size = UDim2.new(pc,0,1,0)
+                    espCache[plr.."_hf"].BackgroundColor3 = pc>0.6 and Color3.fromRGB(0,255,100) or pc>0.3 and Color3.fromRGB(255,200,0) or Color3.fromRGB(255,50,50)
+                end
+                if espCache[plr.."_hl"] then
+                    espCache[plr.."_hl"].Adornee = (cfg.aura and dist <= cfg.maxDist) and char or nil
+                end
+            end
+        else
+            clearESP(plr)
+        end
+    end
+end
+
+-- Player
+local function updatePlayer()
+    local char = LP.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if hum then
+        hum.WalkSpeed = cfg.spd and cfg.spdV or 16
+        if cfg.jmp then hum.JumpPower = cfg.jmpV hum.UseJumpPower = true
+        else hum.JumpPower = 50 end
+    end
+    if cfg.noclip and char then
+        for _, p in pairs(char:GetDescendants()) do
+            if p:IsA("BasePart") and p.CanCollide then p.CanCollide = false end
+        end
+    end
+end
+
+UIS.JumpRequest:Connect(function()
+    if cfg.infJump then
+        local char = LP.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
+    end
+end)
+
+LP.Idled:Connect(function()
+    if cfg.afk then
+        pcall(function()
+            game:GetService("VirtualUser"):CaptureController()
+            game:GetService("VirtualUser"):ClickButton2(Vector2.new())
+        end)
+    end
+end)
+
+-- Aim Lock
+local function getTarget()
+    local closest = nil
+    local shortest = cfg.aimRange
+    local myChar = LP.Character
+    local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
+    if not myHRP then return nil end
+    local camLook = Cam.CFrame.LookVector
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr == LP then continue end
+        local char = plr.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        local tp = char and char:FindFirstChild(cfg.aimPart)
+        if tp and hum and hum.Health > 0 then
+            local dist = (myHRP.Position - tp.Position).Magnitude
+            if dist < shortest then
+                local dir = (tp.Position - Cam.CFrame.Position).Unit
+                local dot = camLook:Dot(dir)
+                local ang = math.deg(math.acos(math.clamp(dot, -1, 1)))
+                if ang <= cfg.aimFOV/2 then
+                    shortest = dist
+                    closest = tp
+                end
+            end
+        end
+    end
+    return closest
+end
+
+local function aimLock()
+    if not cfg.aim then return end
+    local target = getTarget()
+    if not target then return end
+    local myChar = LP.Character
+    local myHRP = myChar and myChar:FindFirstChild("HumanoidRootPart")
+    if not myHRP then return end
+    local myPos = Cam.CFrame.Position
+    local dir = (target.Position - myPos).Unit
+    local targetCF = CFrame.new(myPos, myPos + dir)
+    local smooth = math.clamp(cfg.aimSmooth, 0.01, 1)
+    Cam.CFrame = Cam.CFrame:Lerp(targetCF, smooth)
+end
+
+-- Status bar
+local frameCount = 0
+local lastTime = tick()
+
+RunService.RenderStepped:Connect(function()
+    pcall(updateESP)
+    pcall(updatePlayer)
+    pcall(aimLock)
+    frameCount = frameCount + 1
+    local now = tick()
+    if now - lastTime >= 1 then
+        local fps = frameCount
+        frameCount = 0
+        lastTime = now
+        local ping = 0
+        pcall(function()
+            ping = math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue())
+        end)
+        status.Text = "By Purinat | FPS: "..fps.." | Ping: "..ping
+    end
+end)
+
+Players.PlayerRemoving:Connect(function(p) clearESP(p) end)
+
+UIS.InputBegan:Connect(function(i,pr)
+    if pr then return end
+    if i.KeyCode == Enum.KeyCode.Escape and menuOpen then toggleMenu() end
+    if i.KeyCode == Enum.KeyCode.Q then cfg.aim = not cfg.aim end
+    if i.KeyCode == Enum.KeyCode.Insert then toggleMenu() end
+end)
+
+-- Init
+switchTab("VISUAL")
+
+pcall(function()
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "M-PRO RED v3",
+        Text = "By Purinat - HARD EDITION โหลดสำเร็จ!",
+        Duration = 5,
+    })
+end)
+
+-- ============================================
+-- MPro RED v3 HARD EDITION
+-- By Purinat
+-- © 2026 Purinat
+-- ห้ามนำไปใช้โดยไม่ได้รับอนุญาต
+-- ============================================
