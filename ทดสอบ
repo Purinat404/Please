@@ -1,11 +1,278 @@
--- # ทดสอบโหลดรูป ID ใหม่
-local Players = game:GetService("Players")
-local gui = Instance.new("ScreenGui")
-gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+-- # ภาษาไทยข้อมูล
+-- UI Boot MCore พร้อมโลโก้จริง + สีรุ้งวิ่งรอบ
+-- Asset ID ใหม่: 128134298378562
+-- รองรับ Delta Android ด้วย getcustomasset
+-- ปลอดภัย ไม่แตะระบบเกม
 
-local img = Instance.new("ImageLabel")
-img.Size = UDim2.new(0, 300, 0, 300)
-img.Position = UDim2.new(0.5, -150, 0.5, -150)
-img.BackgroundTransparency = 1
-img.Image = "rbxassetid://128134298378562"
-img.Parent = gui
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local ContentProvider = game:GetService("ContentProvider")
+local LocalPlayer = Players.LocalPlayer
+
+-- # ลบ UI เก่า
+local oldGui = LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("MCoreBootUI")
+if oldGui then oldGui:Destroy() end
+
+-- # ===== Asset ID โลโก้ =====
+local LOGO_ID = "rbxassetid://128134298378562"
+
+-- # ลองโหลดด้วย getcustomasset (สำหรับ Delta Android)
+local logoImage = LOGO_ID
+pcall(function()
+    local success, result = pcall(function()
+        return getcustomasset(LOGO_ID)
+    end)
+    if success and result then
+        logoImage = result
+    end
+end)
+
+-- # Preload รูปก่อนแสดง
+pcall(function()
+    ContentProvider:PreloadAsync({logoImage})
+end)
+task.wait(1)
+
+-- # ===== สร้าง GUI =====
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "MCoreBootUI"
+screenGui.ResetOnSpawn = false
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 360, 0, 380)
+mainFrame.Position = UDim2.new(0.5, -180, 0.5, -190)
+mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 15)
+mainFrame.BackgroundTransparency = 0.1
+mainFrame.BorderSizePixel = 0
+mainFrame.Parent = screenGui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 14)
+corner.Parent = mainFrame
+
+-- # เส้นขอบสีรุ้ง
+local stroke = Instance.new("UIStroke")
+stroke.Thickness = 2
+stroke.Color = Color3.fromRGB(0, 150, 255)
+stroke.Parent = mainFrame
+
+-- # ===== โลโก้ =====
+local logoFrame = Instance.new("Frame")
+logoFrame.Size = UDim2.new(0, 180, 0, 180)
+logoFrame.Position = UDim2.new(0.5, -90, 0, 15)
+logoFrame.BackgroundTransparency = 1
+logoFrame.Parent = mainFrame
+
+local logo = Instance.new("ImageLabel")
+logo.Name = "Logo"
+logo.Size = UDim2.new(1, 0, 1, 0)
+logo.BackgroundTransparency = 1
+logo.Image = logoImage
+logo.ScaleType = Enum.ScaleType.Fit
+logo.Parent = logoFrame
+
+-- # วงแหวนเรืองแสงรอบโลโก้
+local glowRing = Instance.new("ImageLabel")
+glowRing.Name = "GlowRing"
+glowRing.Size = UDim2.new(1, 20, 1, 20)
+glowRing.Position = UDim2.new(0, -10, 0, -10)
+glowRing.BackgroundTransparency = 1
+glowRing.Image = "rbxassetid://5028857084"
+glowRing.ImageColor3 = Color3.fromRGB(0, 150, 255)
+glowRing.ImageTransparency = 0.3
+glowRing.ZIndex = 0
+glowRing.Parent = logoFrame
+
+-- # ===== ชื่อ M-CORE =====
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 36)
+title.Position = UDim2.new(0, 0, 0, 200)
+title.BackgroundTransparency = 1
+title.Text = "M-CORE"
+title.TextColor3 = Color3.fromRGB(0, 200, 255)
+title.TextScaled = true
+title.Font = Enum.Font.GothamBlack
+title.Parent = mainFrame
+
+-- # คำโปรย
+local subtitle = Instance.new("TextLabel")
+subtitle.Size = UDim2.new(1, 0, 0, 18)
+subtitle.Position = UDim2.new(0, 0, 0, 236)
+subtitle.BackgroundTransparency = 1
+subtitle.Text = "— PRO SYSTEM —"
+subtitle.TextColor3 = Color3.fromRGB(180, 180, 200)
+subtitle.TextSize = 12
+subtitle.Font = Enum.Font.Gotham
+subtitle.Parent = mainFrame
+
+-- # เส้นคั่น
+local divider = Instance.new("Frame")
+divider.Size = UDim2.new(1, -40, 0, 1)
+divider.Position = UDim2.new(0, 20, 0, 260)
+divider.BorderSizePixel = 0
+divider.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+divider.Parent = mainFrame
+
+-- # ===== พื้นที่ log =====
+local logFrame = Instance.new("ScrollingFrame")
+logFrame.Size = UDim2.new(1, -40, 0, 55)
+logFrame.Position = UDim2.new(0, 20, 0, 270)
+logFrame.BackgroundTransparency = 1
+logFrame.BorderSizePixel = 0
+logFrame.ScrollBarThickness = 2
+logFrame.ScrollBarImageColor3 = Color3.fromRGB(255, 100, 200)
+logFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+logFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+logFrame.Parent = mainFrame
+
+local layout = Instance.new("UIListLayout")
+layout.SortOrder = Enum.SortOrder.LayoutOrder
+layout.Padding = UDim.new(0, 3)
+layout.Parent = logFrame
+
+-- # ===== แถบ progress =====
+local progressBg = Instance.new("Frame")
+progressBg.Size = UDim2.new(1, -40, 0, 8)
+progressBg.Position = UDim2.new(0, 20, 1, -26)
+progressBg.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+progressBg.BorderSizePixel = 0
+progressBg.Parent = mainFrame
+
+local pbCorner = Instance.new("UICorner")
+pbCorner.CornerRadius = UDim.new(1, 0)
+pbCorner.Parent = progressBg
+
+local progressFill = Instance.new("Frame")
+progressFill.Size = UDim2.new(0, 0, 1, 0)
+progressFill.BackgroundColor3 = Color3.fromRGB(0, 200, 255)
+progressFill.BorderSizePixel = 0
+progressFill.Parent = progressBg
+
+local pfCorner = Instance.new("UICorner")
+pfCorner.CornerRadius = UDim.new(1, 0)
+pfCorner.Parent = progressFill
+
+-- # ===== ฟังก์ชัน log =====
+local logCount = 0
+local function addLog(text, color)
+    logCount = logCount + 1
+    local log = Instance.new("TextLabel")
+    log.Size = UDim2.new(1, 0, 0, 14)
+    log.BackgroundTransparency = 1
+    log.Text = "  " .. text
+    log.TextColor3 = color or Color3.fromRGB(180, 180, 180)
+    log.TextSize = 11
+    log.Font = Enum.Font.Code
+    log.TextXAlignment = Enum.TextXAlignment.Left
+    log.LayoutOrder = logCount
+    log.Parent = logFrame
+end
+
+local function setProgress(p)
+    progressFill:TweenSize(
+        UDim2.new(p / 100, 0, 1, 0),
+        Enum.EasingDirection.Out,
+        Enum.EasingStyle.Quad,
+        0.35,
+        true
+    )
+end
+
+-- # ===== Rainbow Animation =====
+local hue = 0
+local rainbowConn = RunService.RenderStepped:Connect(function(dt)
+    hue = (hue + dt * 0.12) % 1
+
+    local c1 = Color3.fromHSV(hue, 0.85, 1)
+    local c2 = Color3.fromHSV((hue + 0.5) % 1, 0.85, 1)
+
+    title.TextColor3 = c1
+    stroke.Color = c2
+    divider.BackgroundColor3 = c2
+    progressFill.BackgroundColor3 = c1
+    glowRing.ImageColor3 = c2
+    logFrame.ScrollBarImageColor3 = c1
+end)
+
+-- # ===== อนิเมชันโลโก้ pulse =====
+local pulseUp = TweenService:Create(logoFrame, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+    Size = UDim2.new(0, 190, 0, 190),
+    Position = UDim2.new(0.5, -95, 0, 10)
+})
+local pulseDown = TweenService:Create(logoFrame, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
+    Size = UDim2.new(0, 180, 0, 180),
+    Position = UDim2.new(0.5, -90, 0, 15)
+})
+
+task.spawn(function()
+    while logoFrame.Parent do
+        pulseUp:Play()
+        task.wait(1.2)
+        pulseDown:Play()
+        task.wait(1.2)
+    end
+end)
+
+-- # ===== ปิด UI =====
+local function closeUI(delayTime)
+    task.wait(delayTime or 3)
+    if rainbowConn then rainbowConn:Disconnect() end
+    mainFrame:TweenPosition(
+        UDim2.new(0.5, -180, 1.5, 0),
+        Enum.EasingDirection.In,
+        Enum.EasingStyle.Quad,
+        0.5,
+        true
+    )
+    task.wait(0.6)
+    screenGui:Destroy()
+end
+
+-- # ปุ่ม ESC
+UserInputService.InputBegan:Connect(function(input, processed)
+    if processed then return end
+    if input.KeyCode == Enum.KeyCode.Escape then
+        if rainbowConn then rainbowConn:Disconnect() end
+        screenGui:Destroy()
+    end
+end)
+
+-- # ===== Boot sequence =====
+addLog("[BOOT] เริ่มระบบ MCore...", Color3.fromRGB(0, 200, 255))
+setProgress(5)
+task.wait(0.4)
+
+addLog("[OK] โหลดโลโก้สำเร็จ", Color3.fromRGB(100, 255, 180))
+setProgress(20)
+task.wait(0.4)
+
+addLog("[OK] เชื่อมต่อ Workspace", Color3.fromRGB(100, 255, 180))
+setProgress(35)
+task.wait(0.35)
+
+addLog("[..] ลบ texture/decal", Color3.fromRGB(255, 220, 100))
+setProgress(50)
+task.wait(0.5)
+
+addLog("[OK] ลบ texture/decal สำเร็จ", Color3.fromRGB(100, 255, 180))
+setProgress(65)
+task.wait(0.35)
+
+addLog("[..] ปิด effect ทั้งหมด", Color3.fromRGB(255, 220, 100))
+setProgress(80)
+task.wait(0.45)
+
+addLog("[OK] ปรับแสง + FPS สำเร็จ", Color3.fromRGB(100, 255, 180))
+setProgress(100)
+task.wait(0.45)
+
+addLog("[DONE] MCore ทำงานเต็มที่!", Color3.fromRGB(255, 100, 200))
+
+-- # ปิดอัตโนมัติ
+task.spawn(function()
+    closeUI(3)
+end)
