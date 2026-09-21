@@ -1,0 +1,196 @@
+local Lighting = game:GetService("Lighting")
+local Workspace = game:GetService("Workspace")
+local StarterGui = game:GetService("StarterGui")
+local Players = game:GetService("Players")
+
+-- # ตั้งค่า
+local config = {
+    removeTextures = true,
+    removeDecals = true,
+    removeParticles = true,
+    removeFireSmoke = true,
+    removeShadows = true,
+    removeFog = true,
+    removeBloom = true,
+    removeSunRays = true,
+    removePostEffects = true,
+    flatLighting = true,
+    lowestQuality = true,
+    boostFPS = true,
+    autoRerun = true,
+    rerunInterval = 10,
+
+    -- # ตั้งค่ากันแบน
+    antiBan = true,             -- เปิดระบบกันแบนเบื้องต้น
+    startDelay = 5,             -- หน่วงก่อนเริ่มรัน กี่วินาที
+    randomDelay = true,         -- สุ่มเวลารัน กัน pattern
+    rerunJitter = 3,            -- สุ่มเวลา re-run เพิ่ม/ลด กี่วินาที
+    blockOnAntiCheat = true,    -- ถ้าเจอ anti-cheat ให้หยุดทำงาน
+}
+
+-- # รายชื่อ anti-cheat ที่รู้จัก (เจอแล้วหยุด)
+local antiCheatNames = {
+    "Byfron", "Hyperion", "BattlEye", "EasyAntiCheat",
+    "AntiCheat", "AntiExploit", "Kick", "Sentinel",
+}
+
+-- # ฟังก์ชันตรวจว่ามี anti-cheat ไหม
+local function hasAntiCheat()
+    for _, obj in pairs(game:GetDescendants()) do
+        if obj and obj.Name then
+            for _, name in pairs(antiCheatNames) do
+                if string.find(string.lower(obj.Name), string.lower(name)) then
+                    return true, obj.Name
+                end
+            end
+        end
+    end
+    return false, nil
+end
+
+-- # ฟังก์ชันปรับ Lighting
+local function optimizeLighting()
+    if config.removeShadows then
+        Lighting.GlobalShadows = false
+    end
+    if config.removeFog then
+        Lighting.FogEnd = 100000
+        Lighting.FogStart = 100000
+    end
+    for _, v in pairs(Lighting:GetChildren()) do
+        if config.removePostEffects and v:IsA("PostEffect") then
+            v.Enabled = false
+        end
+        if config.removeBloom and v:IsA("BloomEffect") then
+            v.Enabled = false
+        elseif config.removeSunRays and v:IsA("SunRaysEffect") then
+            v.Enabled = false
+        end
+    end
+    if config.flatLighting then
+        Lighting.Ambient = Color3.fromRGB(180, 180, 180)
+        Lighting.OutdoorAmbient = Color3.fromRGB(180, 180, 180)
+        Lighting.Brightness = 2
+        Lighting.EnvironmentDiffuseScale = 0
+        Lighting.EnvironmentSpecularScale = 0
+        Lighting.ClockTime = 14
+        Lighting.GeographicLatitude = 0
+    end
+end
+
+-- # ฟังก์ชันลบ texture/decal/effect
+local function optimizeWorkspace()
+    for _, obj in pairs(Workspace:GetDescendants()) do
+        if obj and obj.Parent then
+            if config.removeTextures and obj:IsA("Texture") then
+                obj:Destroy()
+            elseif config.removeDecals and obj:IsA("Decal") then
+                obj:Destroy()
+            elseif config.removeParticles and obj:IsA("ParticleEmitter") then
+                obj:Destroy()
+            elseif config.removeFireSmoke and obj:IsA("Fire") then
+                obj:Destroy()
+            elseif config.removeFireSmoke and obj:IsA("Smoke") then
+                obj:Destroy()
+            elseif config.removeFireSmoke and obj:IsA("Sparkles") then
+                obj:Destroy()
+            elseif config.removeParticles and obj:IsA("Beam") then
+                obj:Destroy()
+            elseif config.removeParticles and obj:IsA("Trail") then
+                obj:Destroy()
+            elseif config.removeShadows and obj:IsA("PointLight") then
+                obj.Shadows = false
+            elseif config.removeShadows and obj:IsA("SpotLight") then
+                obj.Shadows = false
+            end
+        end
+    end
+    local terrain = Workspace:FindFirstChildOfClass("Terrain")
+    if terrain and config.removeDecals then
+        for _, d in pairs(terrain:GetChildren()) do
+            if d and d.Parent and (d:IsA("Decal") or d:IsA("Texture")) then
+                d:Destroy()
+            end
+        end
+    end
+end
+
+-- # ฟังก์ชันลดคุณภาพ + เพิ่ม FPS
+local function boostFPS()
+    if config.lowestQuality then
+        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+        settings().Rendering.MeshPartDetailLevel = Enum.MeshPartDetailLevel.Level01
+    end
+    if config.boostFPS then
+        settings().Physics.ThrottleAdjustTime = 0
+    end
+end
+
+-- # ฟังก์ชันรวม
+local function runAll()
+    pcall(optimizeLighting)
+    pcall(optimizeWorkspace)
+    pcall(boostFPS)
+end
+
+-- # ฟังก์ชันหลัก (กันรันซ้ำ)
+local function main()
+    -- # กันรันซ้ำ ถ้ารันอยู่แล้วให้หยุด
+    if getgenv and getgenv().SaikutoRunning then
+        return
+    end
+    if getgenv then
+        getgenv().SaikutoRunning = true
+    end
+
+    -- # หน่วงเริ่มต้น
+    if config.startDelay > 0 then
+        task.wait(config.startDelay)
+    end
+
+    -- # สุ่มเวลาเพิ่ม กัน pattern
+    if config.randomDelay then
+        task.wait(math.random(1, 5))
+    end
+
+    -- # เช็ค anti-cheat
+    if config.antiBan and config.blockOnAntiCheat then
+        local found, name = hasAntiCheat()
+        if found then
+            pcall(function()
+                StarterGui:SetCore("SendNotification", {
+                    Title = "Saikuto",
+                    Text = "เจอ anti-cheat (" .. tostring(name) .. ") หยุดทำงานเพื่อความปลอดภัย",
+                    Duration = 5,
+                })
+            end)
+            return
+        end
+    end
+
+    -- # เริ่มทำงาน
+    runAll()
+
+    pcall(function()
+        StarterGui:SetCore("SendNotification", {
+            Title = "Saikuto",
+            Text = "โลกกลายเป็นดินน้ำมันแล้ว!",
+            Duration = 5,
+        })
+    end)
+
+    -- # auto re-run พร้อม jitter
+    if config.autoRerun then
+        task.spawn(function()
+            while task.wait(config.rerunInterval + math.random(0, config.rerunJitter)) do
+                if getgenv and not getgenv().SaikutoRunning then
+                    break
+                end
+                pcall(runAll)
+            end
+        end)
+    end
+end
+
+-- # เรียกฟังก์ชันหลัก
+main()
