@@ -312,3 +312,517 @@ local function makeToggle(parent, text, default, callback)
         if callback then callback(state) end
     end)
 end
+-- MPro RED v1.0 - Part 4/10
+-- Slider Function
+
+local function makeSlider(parent, text, minVal, maxVal, default, callback)
+    local row = Instance.new("Frame")
+    row.Size = UDim2.new(1, -8, 0, 56)
+    row.BackgroundColor3 = Color3.fromRGB(20, 8, 8)
+    row.BorderSizePixel = 0
+    row.Parent = parent
+
+    local rc = Instance.new("UICorner")
+    rc.CornerRadius = UDim.new(0, 8)
+    rc.Parent = row
+
+    local rs = Instance.new("UIStroke")
+    rs.Thickness = 1
+    rs.Color = Color3.fromRGB(80, 20, 20)
+    rs.Transparency = 0.5
+    rs.Parent = row
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -20, 0, 20)
+    label.Position = UDim2.new(0, 12, 0, 6)
+    label.BackgroundTransparency = 1
+    label.Text = text .. ": " .. default
+    label.TextColor3 = Color3.fromRGB(230, 200, 200)
+    label.TextSize = 13
+    label.Font = Enum.Font.Gotham
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = row
+
+    local bar = Instance.new("Frame")
+    bar.Size = UDim2.new(1, -24, 0, 6)
+    bar.Position = UDim2.new(0, 12, 0, 38)
+    bar.BackgroundColor3 = Color3.fromRGB(50, 25, 25)
+    bar.BorderSizePixel = 0
+    bar.Parent = row
+
+    local bc2 = Instance.new("UICorner")
+    bc2.CornerRadius = UDim.new(1, 0)
+    bc2.Parent = bar
+
+    local fill = Instance.new("Frame")
+    fill.Size = UDim2.new((default - minVal) / (maxVal - minVal), 0, 1, 0)
+    fill.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+    fill.BorderSizePixel = 0
+    fill.Parent = bar
+
+    local fc = Instance.new("UICorner")
+    fc.CornerRadius = UDim.new(1, 0)
+    fc.Parent = fill
+
+    local dragging = false
+    local function updateFromX(x)
+        local rel = math.clamp((x - bar.AbsolutePosition.X) / bar.AbsoluteSize.X, 0, 1)
+        local val = math.floor(minVal + (maxVal - minVal) * rel)
+        fill.Size = UDim2.new(rel, 0, 1, 0)
+        label.Text = text .. ": " .. val
+        if callback then callback(val) end
+    end
+
+    bar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            updateFromX(input.Position.X)
+        end
+    end)
+
+    bar.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+
+    UIS.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            updateFromX(input.Position.X)
+        end
+    end)
+end
+-- MPro RED v1.0 - Part 5/10
+-- Section Label + VISUAL Menu
+
+local function makeSection(text)
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, -8, 0, 26)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = "  ▸ " .. text
+    lbl.TextColor3 = Color3.fromRGB(255, 50, 50)
+    lbl.TextSize = 12
+    lbl.Font = Enum.Font.GothamBold
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Parent = sc
+end
+
+-- ===== VISUAL =====
+makeSection("ปรับภาพ")
+
+makeToggle(sc, "Fullbright", cfg.fb, function(v)
+    cfg.fb = v
+    if v then
+        Lighting.Ambient = Color3.fromRGB(180, 180, 180)
+        Lighting.OutdoorAmbient = Color3.fromRGB(180, 180, 180)
+        Lighting.Brightness = 3
+    else
+        Lighting.Ambient = Color3.fromRGB(70, 70, 70)
+        Lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
+        Lighting.Brightness = 2
+    end
+end)
+
+makeToggle(sc, "ปิดหมอก", cfg.fog, function(v)
+    cfg.fog = v
+    if v then
+        Lighting.FogEnd = 100000
+        Lighting.FogStart = 100000
+    end
+end)
+
+makeToggle(sc, "X-Ray (มองทะลุกำแพง)", cfg.xray, function(v)
+    cfg.xray = v
+    for _, obj in pairs(workspace:GetDescendants()) do
+        pcall(function()
+            if obj:IsA("BasePart") then
+                obj.LocalTransparencyModifier = v and 0.7 or 0
+            end
+        end)
+    end
+end)
+
+makeSlider(sc, "FOV", 50, 120, cfg.fov, function(v)
+    cfg.fov = v
+    Cam.FieldOfView = v
+end)
+-- MPro RED v1.0 - Part 6/10
+-- ESP Menu
+
+-- ===== ESP =====
+makeSection("ระบบมองเห็น")
+
+makeToggle(sc, "เปิด ESP", cfg.esp, function(v)
+    cfg.esp = v
+end)
+
+makeToggle(sc, "โชว์ชื่อ", cfg.name, function(v)
+    cfg.name = v
+end)
+
+makeToggle(sc, "โชว์เลือด", cfg.hp, function(v)
+    cfg.hp = v
+end)
+
+makeToggle(sc, "โชว์ระยะทาง", cfg.dist, function(v)
+    cfg.dist = v
+end)
+
+makeToggle(sc, "Aura รอบตัว", cfg.aura, function(v)
+    cfg.aura = v
+end)
+
+makeSlider(sc, "ระยะ ESP", 50, 2000, cfg.maxDist, function(v)
+    cfg.maxDist = v
+end)
+-- MPro RED v1.0 - Part 7/10
+-- PLAYER Menu
+
+-- ===== PLAYER =====
+makeSection("ตัวละคร")
+
+makeToggle(sc, "เพิ่มความเร็ว", cfg.spd, function(v)
+    cfg.spd = v
+end)
+
+makeSlider(sc, "ความเร็ว", 16, 200, cfg.spdV, function(v)
+    cfg.spdV = v
+end)
+
+makeToggle(sc, "กระโดดสูง", cfg.jmp, function(v)
+    cfg.jmp = v
+end)
+
+makeSlider(sc, "ความสูงกระโดด", 50, 200, cfg.jmpV, function(v)
+    cfg.jmpV = v
+end)
+
+makeToggle(sc, "Infinite Jump (กระโดดกลางอากาศ)", cfg.infJump, function(v)
+    cfg.infJump = v
+end)
+
+makeToggle(sc, "Anti-AFK (กันเตะออก)", cfg.afk, function(v)
+    cfg.afk = v
+end)
+-- MPro RED v1.0 - Part 8/10
+-- Menu Toggle + Drag + FPS Display
+
+-- เปิด/ปิดเมนู
+local menuOpen = false
+local function toggleMenu()
+    menuOpen = not menuOpen
+    if menuOpen then
+        menu.Visible = true
+        menu.Position = UDim2.new(1, -320, menu.Position.Y.Scale, menu.Position.Y.Offset)
+    else
+        menu.Visible = false
+    end
+end
+
+btn.MouseButton1Click:Connect(toggleMenu)
+xb.MouseButton1Click:Connect(toggleMenu)
+
+-- ลากเมนูที่ header
+local dragging = false
+local dragStart, startPos
+
+h.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = menu.Position
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        menu.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+UIS.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = false
+    end
+end)
+
+-- FPS / Ping Display
+local fpsLabel = Instance.new("TextLabel")
+fpsLabel.Size = UDim2.new(0, 180, 0, 26)
+fpsLabel.Position = UDim2.new(0, 10, 1, -36)
+fpsLabel.BackgroundColor3 = Color3.fromRGB(12, 5, 5)
+fpsLabel.BackgroundTransparency = 0.3
+fpsLabel.BorderSizePixel = 0
+fpsLabel.Text = "FPS: -- | Ping: --"
+fpsLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+fpsLabel.TextSize = 12
+fpsLabel.Font = Enum.Font.Code
+fpsLabel.Parent = gui
+
+local fpsC = Instance.new("UICorner")
+fpsC.CornerRadius = UDim.new(0, 8)
+fpsC.Parent = fpsLabel
+
+local fpsS = Instance.new("UIStroke")
+fpsS.Thickness = 1
+fpsS.Color = Color3.fromRGB(255, 50, 50)
+fpsS.Transparency = 0.5
+fpsS.Parent = fpsLabel
+
+local frameCount = 0
+local lastTime = tick()
+
+RunService.RenderStepped:Connect(function()
+    if not cfg.showFPS then
+        fpsLabel.Visible = false
+        return
+    end
+    fpsLabel.Visible = true
+    frameCount = frameCount + 1
+    local now = tick()
+    if now - lastTime >= 1 then
+        local fps = frameCount
+        frameCount = 0
+        lastTime = now
+        local ping = 0
+        pcall(function()
+            ping = math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue())
+        end)
+        fpsLabel.Text = "FPS: " .. fps .. " | Ping: " .. ping .. " ms"
+    end
+end)
+
+-- ESC ปิดเมนู
+UIS.InputBegan:Connect(function(input, processed)
+    if processed then return end
+    if input.KeyCode == Enum.KeyCode.Escape then
+        if menuOpen then toggleMenu() end
+    end
+end)
+-- MPro RED v1.0 - Part 9/10
+-- ESP Logic + Player Logic
+
+-- ===== ESP =====
+local espCache = {}
+
+local function clearESP(plr)
+    local keys = {plr, plr.."_name", plr.."_hb", plr.."_hf", plr.."_hl"}
+    for _, k in ipairs(keys) do
+        if espCache[k] then
+            pcall(function() espCache[k]:Destroy() end)
+            espCache[k] = nil
+        end
+    end
+end
+
+local function createESP(plr)
+    if plr == LP then return end
+    clearESP(plr)
+
+    local bb = Instance.new("BillboardGui")
+    bb.Size = UDim2.new(0, 200, 0, 55)
+    bb.StudsOffset = Vector3.new(0, 3, 0)
+    bb.AlwaysOnTop = true
+    bb.Parent = gui
+
+    local nameL = Instance.new("TextLabel")
+    nameL.Size = UDim2.new(1, 0, 0, 18)
+    nameL.BackgroundTransparency = 1
+    nameL.Text = plr.Name
+    nameL.TextColor3 = Color3.fromRGB(255, 80, 80)
+    nameL.TextStrokeTransparency = 0
+    nameL.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    nameL.TextSize = 13
+    nameL.Font = Enum.Font.GothamBold
+    nameL.Parent = bb
+
+    local distL = Instance.new("TextLabel")
+    distL.Size = UDim2.new(1, 0, 0, 14)
+    distL.Position = UDim2.new(0, 0, 0, 18)
+    distL.BackgroundTransparency = 1
+    distL.Text = ""
+    distL.TextColor3 = Color3.fromRGB(220, 180, 180)
+    distL.TextStrokeTransparency = 0
+    distL.TextSize = 11
+    distL.Font = Enum.Font.Gotham
+    distL.Parent = bb
+
+    local hb = Instance.new("Frame")
+    hb.Size = UDim2.new(0, 100, 0, 6)
+    hb.Position = UDim2.new(0.5, -50, 0, 36)
+    hb.BackgroundColor3 = Color3.fromRGB(30, 10, 10)
+    hb.BorderSizePixel = 0
+    hb.Parent = bb
+
+    local hbc = Instance.new("UICorner")
+    hbc.CornerRadius = UDim.new(1, 0)
+    hbc.Parent = hb
+
+    local hf = Instance.new("Frame")
+    hf.Size = UDim2.new(1, 0, 1, 0)
+    hf.BackgroundColor3 = Color3.fromRGB(0, 255, 100)
+    hf.BorderSizePixel = 0
+    hf.Parent = hb
+
+    local hfc = Instance.new("UICorner")
+    hfc.CornerRadius = UDim.new(1, 0)
+    hfc.Parent = hf
+
+    local hl = Instance.new("Highlight")
+    hl.FillColor = Color3.fromRGB(255, 50, 50)
+    hl.FillTransparency = 0.6
+    hl.OutlineColor = Color3.fromRGB(255, 100, 100)
+    hl.OutlineTransparency = 0
+    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    hl.Parent = gui
+
+    espCache[plr] = bb
+    espCache[plr.."_name"] = nameL
+    espCache[plr.."_dist"] = distL
+    espCache[plr.."_hb"] = hb
+    espCache[plr.."_hf"] = hf
+    espCache[plr.."_hl"] = hl
+end
+
+local function updateESP()
+    if not cfg.esp then
+        local toClear = {}
+        for k, v in pairs(espCache) do
+            if typeof(v) == "Instance" and not string.find(k, "_") then
+                table.insert(toClear, k)
+            end
+        end
+        for _, p in ipairs(toClear) do
+            clearESP(p)
+        end
+        return
+    end
+
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr == LP then continue end
+        local char = plr.Character
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+
+        if hrp and hum and hum.Health > 0 then
+            if not espCache[plr] then createESP(plr) end
+            local bb = espCache[plr]
+            if bb and bb.Parent then
+                bb.Adornee = hrp
+                local dist = (Cam.CFrame.Position - hrp.Position).Magnitude
+                bb.Enabled = dist <= cfg.maxDist
+
+                local nl = espCache[plr.."_name"]
+                if nl then nl.Visible = cfg.name end
+
+                local dl = espCache[plr.."_dist"]
+                if dl then
+                    dl.Visible = cfg.dist
+                    dl.Text = math.floor(dist) .. " studs"
+                end
+
+                local hb = espCache[plr.."_hb"]
+                local hf = espCache[plr.."_hf"]
+                if hb and hf then
+                    hb.Visible = cfg.hp
+                    local percent = hum.Health / hum.MaxHealth
+                    hf.Size = UDim2.new(percent, 0, 1, 0)
+                    if percent > 0.6 then
+                        hf.BackgroundColor3 = Color3.fromRGB(0, 255, 100)
+                    elseif percent > 0.3 then
+                        hf.BackgroundColor3 = Color3.fromRGB(255, 200, 0)
+                    else
+                        hf.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+                    end
+                end
+
+                local hl = espCache[plr.."_hl"]
+                if hl then
+                    if cfg.aura and dist <= cfg.maxDist then
+                        hl.Adornee = char
+                    else
+                        hl.Adornee = nil
+                    end
+                end
+            end
+        else
+            clearESP(plr)
+        end
+    end
+end
+
+-- ===== Player Logic =====
+local function updatePlayer()
+    local char = LP.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    if hum then
+        hum.WalkSpeed = cfg.spd and cfg.spdV or 16
+        if cfg.jmp then
+            hum.JumpPower = cfg.jmpV
+            hum.UseJumpPower = true
+        else
+            hum.JumpPower = 50
+        end
+    end
+end
+
+-- Infinite Jump
+UIS.JumpRequest:Connect(function()
+    if cfg.infJump then
+        local char = LP.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        if hum then
+            hum:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+    end
+end)
+
+-- Anti-AFK
+LP.Idled:Connect(function()
+    if cfg.afk then
+        pcall(function()
+            game:GetService("VirtualUser"):CaptureController()
+            game:GetService("VirtualUser"):ClickButton2(Vector2.new())
+        end)
+    end
+end)
+-- MPro RED v1.0 - Part 10/10
+-- Main Loop + End
+
+-- Loop หลัก
+RunService.RenderStepped:Connect(function()
+    pcall(updateESP)
+    pcall(updatePlayer)
+end)
+
+-- ลบ ESP เมื่อผู้เล่นออก
+Players.PlayerRemoving:Connect(function(plr)
+    clearESP(plr)
+end)
+
+-- ลบ ESP เมื่อตัวละครตาย
+Players.PlayerAdded:Connect(function(plr)
+    plr.CharacterAdded:Connect(function()
+        task.wait(1)
+        pcall(function() clearESP(plr) end)
+    end)
+end)
+
+-- แจ้งเตือน
+pcall(function()
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "M-PRO RED",
+        Text = "โหลดสำเร็จ! กดปุ่ม M เพื่อเปิดเมนู",
+        Duration = 5,
+    })
+end)
+
+-- ============================================
+-- MPro RED v1.0 - By MPro
+-- ลิขสิทธิ์ MPro 2026
+-- Red Theme Edition
+-- ============================================
