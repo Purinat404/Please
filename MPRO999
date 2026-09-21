@@ -1,3 +1,24 @@
+-- MPro RED v1.0 - Part 1/10
+-- Variables + Config
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+local Tween = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
+local LP = Players.LocalPlayer
+local Cam = workspace.CurrentCamera
+
+local cfg = {
+    fb = false, fog = false, xray = false, fov = 70,
+    esp = true, name = true, hp = true, dist = true,
+    aura = true, maxDist = 500,
+    spd = false, spdV = 30,
+    jmp = false, jmpV = 80,
+    infJump = false, afk = true,
+    aim = false, aimRange = 300, aimSmooth = 0.15,
+    showFPS = true,
+}
 -- MPro RED v1.0 - Part 2/10
 -- GUI Main + M Button
 
