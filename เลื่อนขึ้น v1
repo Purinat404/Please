@@ -1,52 +1,31 @@
 local Lighting = game:GetService("Lighting")
 local Workspace = game:GetService("Workspace")
 local StarterGui = game:GetService("StarterGui")
-local Players = game:GetService("Players")
 
--- # ตั้งค่า
+-- # ตั้งค่าทั้งหมด
 local config = {
-    removeTextures = true,
-    removeDecals = true,
-    removeParticles = true,
-    removeFireSmoke = true,
-    removeShadows = true,
-    removeFog = true,
-    removeBloom = true,
-    removeSunRays = true,
-    removePostEffects = true,
-    flatLighting = true,
-    lowestQuality = true,
-    boostFPS = true,
-    autoRerun = true,
-    rerunInterval = 10,
+    -- # ส่วนลบของไม่จำเป็น
+    removeTextures = true,      -- ลบ texture ทั้งหมด
+    removeDecals = true,        -- ลบ decal/รูปแปะทั้งหมด
+    removeParticles = true,     -- ลบ particle effect
+    removeFireSmoke = true,     -- ลบไฟ/ควัน/sparkles
+    removeShadows = true,       -- ปิดเงา
+    removeFog = true,           -- ปิดหมอก
+    removeBloom = true,         -- ปิด bloom
+    removeSunRays = true,       -- ปิดแสงอาทิตย์
+    removePostEffects = true,   -- ปิด post-processing ทั้งหมด
 
-    -- # ตั้งค่ากันแบน
-    antiBan = true,             -- เปิดระบบกันแบนเบื้องต้น
-    startDelay = 5,             -- หน่วงก่อนเริ่มรัน กี่วินาที
-    randomDelay = true,         -- สุ่มเวลารัน กัน pattern
-    rerunJitter = 3,            -- สุ่มเวลา re-run เพิ่ม/ลด กี่วินาที
-    blockOnAntiCheat = true,    -- ถ้าเจอ anti-cheat ให้หยุดทำงาน
+    -- # ส่วนปรับภาพ
+    flatLighting = true,        -- แสงแบนเหมือนดินน้ำมัน
+    lowestQuality = true,       -- ลดคุณภาพต่ำสุด
+    boostFPS = true,            -- เพิ่ม FPS
+
+    -- # ส่วนการทำงาน
+    autoRerun = true,           -- วนซ้ำอัตโนมัติ
+    rerunInterval = 10,         -- วนทุกกี่วินาที
+    rerunJitter = 3,            -- สุ่มเวลาเพิ่ม/ลด
+    startDelay = 3,             -- หน่วงก่อนเริ่ม
 }
-
--- # รายชื่อ anti-cheat ที่รู้จัก (เจอแล้วหยุด)
-local antiCheatNames = {
-    "Byfron", "Hyperion", "BattlEye", "EasyAntiCheat",
-    "AntiCheat", "AntiExploit", "Kick", "Sentinel",
-}
-
--- # ฟังก์ชันตรวจว่ามี anti-cheat ไหม
-local function hasAntiCheat()
-    for _, obj in pairs(game:GetDescendants()) do
-        if obj and obj.Name then
-            for _, name in pairs(antiCheatNames) do
-                if string.find(string.lower(obj.Name), string.lower(name)) then
-                    return true, obj.Name
-                end
-            end
-        end
-    end
-    return false, nil
-end
 
 -- # ฟังก์ชันปรับ Lighting
 local function optimizeLighting()
@@ -105,6 +84,7 @@ local function optimizeWorkspace()
             end
         end
     end
+
     local terrain = Workspace:FindFirstChildOfClass("Terrain")
     if terrain and config.removeDecals then
         for _, d in pairs(terrain:GetChildren()) do
@@ -115,7 +95,7 @@ local function optimizeWorkspace()
     end
 end
 
--- # ฟังก์ชันลดคุณภาพ + เพิ่ม FPS
+-- # ฟังก์ชันลดคุณภาพ + FPS
 local function boostFPS()
     if config.lowestQuality then
         settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
@@ -126,16 +106,16 @@ local function boostFPS()
     end
 end
 
--- # ฟังก์ชันรวม
+-- # ฟังก์ชันรวม กันแครช
 local function runAll()
     pcall(optimizeLighting)
     pcall(optimizeWorkspace)
     pcall(boostFPS)
 end
 
--- # ฟังก์ชันหลัก (กันรันซ้ำ)
+-- # ฟังก์ชันหลัก
 local function main()
-    -- # กันรันซ้ำ ถ้ารันอยู่แล้วให้หยุด
+    -- # กันรันซ้ำ
     if getgenv and getgenv().SaikutoRunning then
         return
     end
@@ -143,29 +123,9 @@ local function main()
         getgenv().SaikutoRunning = true
     end
 
-    -- # หน่วงเริ่มต้น
+    -- # หน่วงก่อนเริ่ม
     if config.startDelay > 0 then
         task.wait(config.startDelay)
-    end
-
-    -- # สุ่มเวลาเพิ่ม กัน pattern
-    if config.randomDelay then
-        task.wait(math.random(1, 5))
-    end
-
-    -- # เช็ค anti-cheat
-    if config.antiBan and config.blockOnAntiCheat then
-        local found, name = hasAntiCheat()
-        if found then
-            pcall(function()
-                StarterGui:SetCore("SendNotification", {
-                    Title = "Saikuto",
-                    Text = "เจอ anti-cheat (" .. tostring(name) .. ") หยุดทำงานเพื่อความปลอดภัย",
-                    Duration = 5,
-                })
-            end)
-            return
-        end
     end
 
     -- # เริ่มทำงาน
@@ -179,7 +139,7 @@ local function main()
         })
     end)
 
-    -- # auto re-run พร้อม jitter
+    -- # auto re-run
     if config.autoRerun then
         task.spawn(function()
             while task.wait(config.rerunInterval + math.random(0, config.rerunJitter)) do
