@@ -1,0 +1,512 @@
+-- MPro NEXUS v2 - By Purinat
+local Players=game:GetService("Players")
+local RunService=game:GetService("RunService")
+local UIS=game:GetService("UserInputService")
+local Tween=game:GetService("TweenService")
+local Lighting=game:GetService("Lighting")
+local LP=Players.LocalPlayer
+local Cam=workspace.CurrentCamera
+
+pcall(function() local o=LP:WaitForChild("PlayerGui"):FindFirstChild("NX") if o then o:Destroy() end end)
+
+local C={bg=Color3.fromRGB(8,5,18),panel=Color3.fromRGB(18,10,35),ac=Color3.fromRGB(180,80,255),ac2=Color3.fromRGB(80,200,255),tx=Color3.fromRGB(230,220,255),dm=Color3.fromRGB(150,130,180)}
+
+local cfg={fb=false,fog=false,xray=false,fov=70,esp=true,nm=true,hp=true,ds=true,aura=true,md=1500,spd=false,sv=30,jmp=false,jv=80,ij=false,afk=true,nc=false,aim=false,ar=500,as=0.15,af=90,circ=true,rb=true}
+
+local gui=Instance.new("ScreenGui")
+gui.Name="NX"
+gui.ResetOnSpawn=false
+gui.DisplayOrder=2147483647
+gui.IgnoreGuiInset=true
+gui.Parent=LP:WaitForChild("PlayerGui")
+
+local btn=Instance.new("TextButton")
+btn.Size=UDim2.new(0,44,0,44)
+btn.Position=UDim2.new(1,-64,0,20)
+btn.BackgroundColor3=C.bg
+btn.Text="◆"
+btn.TextColor3=C.ac
+btn.TextSize=22
+btn.Font=Enum.Font.GothamBlack
+btn.AutoButtonColor=false
+btn.BorderSizePixel=0
+btn.Parent=gui
+local bc=Instance.new("UICorner") bc.CornerRadius=UDim.new(0,12) bc.Parent=btn
+local bst=Instance.new("UIStroke") bst.Thickness=2 bst.Color=C.ac bst.Parent=btn
+
+local menu=Instance.new("Frame")
+menu.Size=UDim2.new(0,360,0,420)
+menu.Position=UDim2.new(1,-380,0,80)
+menu.BackgroundColor3=C.bg
+menu.BorderSizePixel=0
+menu.Visible=false
+menu.Parent=gui
+local mc=Instance.new("UICorner") mc.CornerRadius=UDim.new(0,14) mc.Parent=menu
+local ms=Instance.new("UIStroke") ms.Thickness=2 ms.Color=C.ac ms.Parent=menu
+
+local hd=Instance.new("Frame")
+hd.Size=UDim2.new(1,0,0,44)
+hd.BackgroundColor3=C.panel
+hd.BorderSizePixel=0
+hd.Parent=menu
+local hc=Instance.new("UICorner") hc.CornerRadius=UDim.new(0,14) hc.Parent=hd
+local hf=Instance.new("Frame") hf.Size=UDim2.new(1,0,0,14) hf.Position=UDim2.new(0,0,1,-14) hf.BackgroundColor3=C.panel hf.BorderSizePixel=0 hf.Parent=hd
+
+local ti=Instance.new("TextLabel")
+ti.Size=UDim2.new(1,-50,1,0)
+ti.Position=UDim2.new(0,15,0,0)
+ti.BackgroundTransparency=1
+ti.Text="◆ NEXUS | By Purinat"
+ti.TextColor3=C.ac
+ti.TextSize=14
+ti.Font=Enum.Font.GothamBold
+ti.TextXAlignment=Enum.TextXAlignment.Left
+ti.Parent=hd
+
+local xb=Instance.new("TextButton")
+xb.Size=UDim2.new(0,26,0,26)
+xb.Position=UDim2.new(1,-34,0,9)
+xb.BackgroundColor3=Color3.fromRGB(40,20,50)
+xb.Text="✕"
+xb.TextColor3=Color3.fromRGB(255,100,150)
+xb.TextSize=12
+xb.Font=Enum.Font.GothamBold
+xb.BorderSizePixel=0
+xb.Parent=hd
+local xc=Instance.new("UICorner") xc.CornerRadius=UDim.new(0,7) xc.Parent=xb
+
+local tf=Instance.new("Frame")
+tf.Size=UDim2.new(1,-16,0,30)
+tf.Position=UDim2.new(0,8,0,50)
+tf.BackgroundTransparency=1
+tf.Parent=menu
+local tl=Instance.new("UIListLayout") tl.FillDirection=Enum.FillDirection.Horizontal tl.Padding=UDim.new(0,3) tl.Parent=tf
+
+local sc=Instance.new("ScrollingFrame")
+sc.Size=UDim2.new(1,-16,1,-92)
+sc.Position=UDim2.new(0,8,0,86)
+sc.BackgroundTransparency=1
+sc.BorderSizePixel=0
+sc.ScrollBarThickness=3
+sc.ScrollBarImageColor3=C.ac
+sc.CanvasSize=UDim2.new(0,0,0,0)
+sc.AutomaticCanvasSize=Enum.AutomaticSize.Y
+sc.Parent=menu
+local ll=Instance.new("UIListLayout") ll.Padding=UDim.new(0,5) ll.Parent=sc
+
+local tabs={}
+local function swTab(n)
+    for k,v in pairs(tabs) do
+        v.BackgroundColor3=(k==n) and C.ac or C.panel
+        v.TextColor3=(k==n) and C.bg or C.dm
+    end
+    for _,c in pairs(sc:GetChildren()) do
+        local t=c:GetAttribute("Tab")
+        if t then c.Visible=(t==n) end
+    end
+end
+
+local function mTab(n,o)
+    local b=Instance.new("TextButton")
+    b.Size=UDim2.new(0,80,0,24)
+    b.BackgroundColor3=C.panel
+    b.Text=n
+    b.TextColor3=C.dm
+    b.TextSize=10
+    b.Font=Enum.Font.Code
+    b.AutoButtonColor=false
+    b.BorderSizePixel=0
+    b.LayoutOrder=o
+    b.Parent=tf
+    local c=Instance.new("UICorner") c.CornerRadius=UDim.new(0,6) c.Parent=b
+    b.MouseButton1Click:Connect(function() swTab(n) end)
+    tabs[n]=b
+end
+
+local function mSec(txt,tab)
+    local l=Instance.new("TextLabel")
+    l.Size=UDim2.new(1,-8,0,20)
+    l.BackgroundTransparency=1
+    l.Text="  ┌─ "..txt
+    l.TextColor3=C.ac
+    l.TextSize=11
+    l.Font=Enum.Font.Code
+    l.TextXAlignment=Enum.TextXAlignment.Left
+    l:SetAttribute("Tab",tab)
+    l.Parent=sc
+end
+
+local function mTog(txt,def,tab,cb)
+    local r=Instance.new("Frame")
+    r.Size=UDim2.new(1,-8,0,32)
+    r.BackgroundColor3=C.panel
+    r.BorderSizePixel=0
+    r:SetAttribute("Tab",tab)
+    r.Parent=sc
+    local rc=Instance.new("UICorner") rc.CornerRadius=UDim.new(0,8) rc.Parent=r
+    local lb=Instance.new("TextLabel")
+    lb.Size=UDim2.new(1,-70,1,0)
+    lb.Position=UDim2.new(0,12,0,0)
+    lb.BackgroundTransparency=1
+    lb.Text=txt
+    lb.TextColor3=C.tx
+    lb.TextSize=12
+    lb.Font=Enum.Font.Code
+    lb.TextXAlignment=Enum.TextXAlignment.Left
+    lb.Parent=r
+    local tg=Instance.new("TextButton")
+    tg.Size=UDim2.new(0,42,0,20)
+    tg.Position=UDim2.new(1,-52,0.5,-10)
+    tg.BackgroundColor3=def and C.ac or Color3.fromRGB(40,25,55)
+    tg.Text=""
+    tg.AutoButtonColor=false
+    tg.BorderSizePixel=0
+    tg.Parent=r
+    local tc=Instance.new("UICorner") tc.CornerRadius=UDim.new(1,0) tc.Parent=tg
+    local kn=Instance.new("Frame")
+    kn.Size=UDim2.new(0,16,0,16)
+    kn.Position=def and UDim2.new(1,-18,0.5,-8) or UDim2.new(0,2,0.5,-8)
+    kn.BackgroundColor3=Color3.fromRGB(255,255,255)
+    kn.BorderSizePixel=0
+    kn.Parent=tg
+    local kc=Instance.new("UICorner") kc.CornerRadius=UDim.new(1,0) kc.Parent=kn
+    local st=def
+    tg.MouseButton1Click:Connect(function()
+        st=not st
+        Tween:Create(tg,TweenInfo.new(0.2),{BackgroundColor3=st and C.ac or Color3.fromRGB(40,25,55)}):Play()
+        Tween:Create(kn,TweenInfo.new(0.2),{Position=st and UDim2.new(1,-18,0.5,-8) or UDim2.new(0,2,0.5,-8)}):Play()
+        if cb then pcall(cb,st) end
+    end)
+end
+
+local function mSli(txt,mn,mx,def,tab,cb)
+    local r=Instance.new("Frame")
+    r.Size=UDim2.new(1,-8,0,50)
+    r.BackgroundColor3=C.panel
+    r.BorderSizePixel=0
+    r:SetAttribute("Tab",tab)
+    r.Parent=sc
+    local rc=Instance.new("UICorner") rc.CornerRadius=UDim.new(0,8) rc.Parent=r
+    local lb=Instance.new("TextLabel")
+    lb.Size=UDim2.new(1,-20,0,18)
+    lb.Position=UDim2.new(0,12,0,5)
+    lb.BackgroundTransparency=1
+    lb.Text=txt..": "..def
+    lb.TextColor3=C.tx
+    lb.TextSize=12
+    lb.Font=Enum.Font.Code
+    lb.TextXAlignment=Enum.TextXAlignment.Left
+    lb.Parent=r
+    local br=Instance.new("Frame")
+    br.Size=UDim2.new(1,-24,0,6)
+    br.Position=UDim2.new(0,12,0,34)
+    br.BackgroundColor3=Color3.fromRGB(40,25,55)
+    br.BorderSizePixel=0
+    br.Parent=r
+    local bc2=Instance.new("UICorner") bc2.CornerRadius=UDim.new(1,0) bc2.Parent=br
+    local fl=Instance.new("Frame")
+    fl.Size=UDim2.new((def-mn)/(mx-mn),0,1,0)
+    fl.BackgroundColor3=C.ac2
+    fl.BorderSizePixel=0
+    fl.Parent=br
+    local fc=Instance.new("UICorner") fc.CornerRadius=UDim.new(1,0) fc.Parent=fl
+    local dr=false
+    local function up(x)
+        local rl=math.clamp((x-br.AbsolutePosition.X)/br.AbsoluteSize.X,0,1)
+        local v=math.floor(mn+(mx-mn)*rl)
+        fl.Size=UDim2.new(rl,0,1,0)
+        lb.Text=txt..": "..v
+        if cb then pcall(cb,v) end
+    end
+    br.InputBegan:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then dr=true up(i.Position.X) end end)
+    br.InputEnded:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then dr=false end end)
+    UIS.InputChanged:Connect(function(i) if dr and (i.UserInputType==Enum.UserInputType.MouseMovement or i.UserInputType==Enum.UserInputType.Touch) then up(i.Position.X) end end)
+end
+
+mTab("VISUAL",1)
+mTab("ESP",2)
+mTab("PLAYER",3)
+mTab("AIM",4)
+
+mSec("VISUAL","VISUAL")
+mTog("Fullbright",cfg.fb,"VISUAL",function(v) cfg.fb=v pcall(function() if v then Lighting.Ambient=Color3.fromRGB(180,180,180) Lighting.OutdoorAmbient=Color3.fromRGB(180,180,180) Lighting.Brightness=3 else Lighting.Ambient=Color3.fromRGB(70,70,70) Lighting.OutdoorAmbient=Color3.fromRGB(128,128,128) Lighting.Brightness=2 end end) end)
+mTog("No Fog",cfg.fog,"VISUAL",function(v) cfg.fog=v pcall(function() if v then Lighting.FogEnd=100000 Lighting.FogStart=100000 end end) end)
+mTog("X-Ray",cfg.xray,"VISUAL",function(v) cfg.xray=v task.spawn(function() for _,o in pairs(workspace:GetDescendants()) do pcall(function() if o:IsA("BasePart") then o.LocalTransparencyModifier=v and 0.7 or 0 end end) end end) end)
+mSli("FOV",50,120,cfg.fov,"VISUAL",function(v) cfg.fov=v pcall(function() Cam.FieldOfView=v end) end)
+
+mSec("ESP","ESP")
+mTog("Enable",cfg.esp,"ESP",function(v) cfg.esp=v end)
+mTog("Name",cfg.nm,"ESP",function(v) cfg.nm=v end)
+mTog("Health",cfg.hp,"ESP",function(v) cfg.hp=v end)
+mTog("Distance",cfg.ds,"ESP",function(v) cfg.ds=v end)
+mTog("Aura",cfg.aura,"ESP",function(v) cfg.aura=v end)
+mTog("Rainbow",cfg.rb,"ESP",function(v) cfg.rb=v end)
+mSli("Max Dist",50,5000,cfg.md,"ESP",function(v) cfg.md=v end)
+
+mSec("PLAYER","PLAYER")
+mTog("Speed",cfg.spd,"PLAYER",function(v) cfg.spd=v end)
+mSli("Speed Val",16,200,cfg.sv,"PLAYER",function(v) cfg.sv=v end)
+mTog("Jump",cfg.jmp,"PLAYER",function(v) cfg.jmp=v end)
+mSli("Jump Pow",50,300,cfg.jv,"PLAYER",function(v) cfg.jv=v end)
+mTog("Inf Jump",cfg.ij,"PLAYER",function(v) cfg.ij=v end)
+mTog("Anti-AFK",cfg.afk,"PLAYER",function(v) cfg.afk=v end)
+mTog("No Clip",cfg.nc,"PLAYER",function(v) cfg.nc=v end)
+
+mSec("AIM","AIM")
+mTog("Aim (Q)",cfg.aim,"AIM",function(v) cfg.aim=v end)
+mTog("FOV Circle",cfg.circ,"AIM",function(v) cfg.circ=v end)
+mSli("Range",50,2000,cfg.ar,"AIM",function(v) cfg.ar=v end)
+mSli("Smooth x100",1,30,cfg.as*100,"AIM",function(v) cfg.as=v/100 end)
+mSli("FOV",10,180,cfg.af,"AIM",function(v) cfg.af=v end)
+
+local mOpen=false
+local function tgM() mOpen=not mOpen menu.Visible=mOpen end
+btn.MouseButton1Click:Connect(tgM)
+xb.MouseButton1Click:Connect(tgM)
+
+local mDr=false
+local mSt,mPo
+hd.InputBegan:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then mDr=true mSt=i.Position mPo=menu.Position end end)
+UIS.InputChanged:Connect(function(i) if mDr and (i.UserInputType==Enum.UserInputType.MouseMovement or i.UserInputType==Enum.UserInputType.Touch) then local d=i.Position-mSt menu.Position=UDim2.new(mPo.X.Scale,mPo.X.Offset+d.X,mPo.Y.Scale,mPo.Y.Offset+d.Y) end end)
+UIS.InputEnded:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then mDr=false end end)
+
+local aimCirc=Instance.new("Frame")
+aimCirc.Size=UDim2.new(0,180,0,180)
+aimCirc.Position=UDim2.new(0.5,-90,0.5,-90)
+aimCirc.BackgroundTransparency=1
+aimCirc.Visible=false
+aimCirc.ZIndex=5
+aimCirc.Parent=gui
+local acC=Instance.new("UICorner") acC.CornerRadius=UDim.new(1,0) acC.Parent=aimCirc
+local acS=Instance.new("UIStroke") acS.Thickness=2 acS.Color=C.ac acS.Transparency=0.3 acS.Parent=aimCirc
+
+local ec={}
+local hue=0
+local function getH(c) if not c then return nil end return c:FindFirstChildOfClass("Humanoid") or c:FindFirstChild("Humanoid") end
+local function getR(c) if not c then return nil end return c:FindFirstChild("HumanoidRootPart") or c:FindFirstChild("UpperTorso") or c:FindFirstChild("Torso") or c:FindFirstChildOfClass("BasePart") end
+local function clr(p)
+    local u=p.UserId
+    for _,k in ipairs({u,u.."_bb",u.."_bs",u.."_n",u.."_d",u.."_hb",u.."_hf",u.."_hl"}) do
+        if ec[k] then pcall(function() ec[k]:Destroy() end) ec[k]=nil end
+    end
+end
+local function mk(p)
+    if p==LP then return end
+    clr(p)
+    local u=p.UserId
+    local bb=Instance.new("BillboardGui")
+    bb.Size=UDim2.new(0,80,0,120)
+    bb.StudsOffset=Vector3.new(0,2,0)
+    bb.AlwaysOnTop=true
+    bb.MaxDistance=math.huge
+    bb.LightInfluence=0
+    bb.Parent=gui
+    local bx=Instance.new("Frame")
+    bx.Size=UDim2.new(1,0,1,0)
+    bx.BackgroundTransparency=1
+    bx.BorderSizePixel=0
+    bx.Parent=bb
+    local bs=Instance.new("UIStroke") bs.Thickness=2 bs.Color=C.ac bs.Parent=bx
+    local n=Instance.new("TextLabel")
+    n.Size=UDim2.new(1,0,0,16)
+    n.Position=UDim2.new(0,0,1,4)
+    n.BackgroundTransparency=1
+    n.Text=p.Name
+    n.TextColor3=C.tx
+    n.TextStrokeTransparency=0
+    n.TextSize=12
+    n.Font=Enum.Font.GothamBold
+    n.Parent=bb
+    local d=Instance.new("TextLabel")
+    d.Size=UDim2.new(1,0,0,14)
+    d.Position=UDim2.new(0,0,1,22)
+    d.BackgroundTransparency=1
+    d.Text=""
+    d.TextColor3=C.dm
+    d.TextStrokeTransparency=0
+    d.TextSize=11
+    d.Font=Enum.Font.Code
+    d.Parent=bb
+    local hb=Instance.new("Frame")
+    hb.Size=UDim2.new(0,60,0,6)
+    hb.Position=UDim2.new(0.5,-30,1,40)
+    hb.BackgroundColor3=Color3.fromRGB(30,15,45)
+    hb.BorderSizePixel=0
+    hb.Parent=bb
+    local hbc=Instance.new("UICorner") hbc.CornerRadius=UDim.new(1,0) hbc.Parent=hb
+    local hf=Instance.new("Frame")
+    hf.Size=UDim2.new(1,0,1,0)
+    hf.BackgroundColor3=Color3.fromRGB(0,255,100)
+    hf.BorderSizePixel=0
+    hf.Parent=hb
+    local hfc=Instance.new("UICorner") hfc.CornerRadius=UDim.new(1,0) hfc.Parent=hf
+    local hl=Instance.new("Highlight")
+    hl.FillColor=C.ac
+    hl.FillTransparency=0.7
+    hl.OutlineColor=C.ac2
+    hl.OutlineTransparency=0.2
+    hl.DepthMode=Enum.HighlightDepthMode.AlwaysOnTop
+    hl.Parent=gui
+    ec[u]=bb
+    ec[u.."_bb"]=bx
+    ec[u.."_bs"]=bs
+    ec[u.."_n"]=n
+    ec[u.."_d"]=d
+    ec[u.."_hb"]=hb
+    ec[u.."_hf"]=hf
+    ec[u.."_hl"]=hl
+end
+local function upE()
+    hue=(hue+0.008)%1
+    if not cfg.esp then
+        local t={}
+        for k,v in pairs(ec) do if typeof(v)=="Instance" then table.insert(t,k) end end
+        for _,k in ipairs(t) do
+            local u=tonumber(string.match(k,"%d+"))
+            if u then for _,p in ipairs(Players:GetPlayers()) do if p.UserId==u then clr(p) break end end end
+        end
+        return
+    end
+    for _,p in ipairs(Players:GetPlayers()) do
+        if p==LP then continue end
+        local c=p.Character
+        if not c then continue end
+        local hr=getR(c)
+        local hu=getH(c)
+        if hr and hu then
+            local u=p.UserId
+            if not ec[u] then mk(p) task.wait(0.03) end
+            local bb=ec[u]
+            if bb and bb.Parent then
+                bb.Adornee=hr
+                local di=(Cam.CFrame.Position-hr.Position).Magnitude
+                bb.Enabled=di<=cfg.md
+                local s=math.clamp(500/math.max(di,1),0.3,2)
+                bb.Size=UDim2.new(0,80*s,0,120*s)
+                local rc=C.ac
+                if cfg.rb then rc=Color3.fromHSV(hue,0.8,1) end
+                if ec[u.."_bs"] then ec[u.."_bs"].Color=rc end
+                if ec[u.."_n"] then ec[u.."_n"].Visible=cfg.nm ec[u.."_n"].TextColor3=rc end
+                if ec[u.."_d"] then ec[u.."_d"].Visible=cfg.ds ec[u.."_d"].Text=math.floor(di).." studs" end
+                if ec[u.."_hb"] and ec[u.."_hf"] then
+                    ec[u.."_hb"].Visible=cfg.hp
+                    local pc=(hu.Health or 100)/math.max(hu.MaxHealth or 100,1)
+                    ec[u.."_hf"].Size=UDim2.new(math.clamp(pc,0,1),0,1,0)
+                    ec[u.."_hf"].BackgroundColor3=pc>0.6 and Color3.fromRGB(0,255,100) or pc>0.3 and Color3.fromRGB(255,200,0) or Color3.fromRGB(255,50,50)
+                end
+                if ec[u.."_hl"] then
+                    ec[u.."_hl"].Adornee=(cfg.aura and di<=cfg.md) and c or nil
+                    ec[u.."_hl"].FillColor=rc
+                    ec[u.."_hl"].OutlineColor=rc
+                end
+            end
+        end
+    end
+end
+
+local function upP()
+    pcall(function()
+        local c=LP.Character
+        local hu=getH(c)
+        if hu then
+            pcall(function() hu.WalkSpeed=cfg.spd and cfg.sv or 16 end)
+            if cfg.jmp then pcall(function() hu.JumpPower=cfg.jv hu.UseJumpPower=true end)
+            else pcall(function() hu.JumpPower=50 end) end
+        end
+        if cfg.nc and c then
+            for _,p in pairs(c:GetDescendants()) do pcall(function() if p:IsA("BasePart") then p.CanCollide=false end end) end
+        end
+    end)
+end
+
+UIS.JumpRequest:Connect(function()
+    pcall(function()
+        if cfg.ij then
+            local c=LP.Character
+            local hu=getH(c)
+            if hu then hu:ChangeState(Enum.HumanoidStateType.Jumping) end
+        end
+    end)
+end)
+
+LP.Idled:Connect(function()
+    pcall(function()
+        if cfg.afk then
+            game:GetService("VirtualUser"):CaptureController()
+            game:GetService("VirtualUser"):ClickButton2(Vector2.new())
+        end
+    end)
+end)
+
+local function getT()
+    local cl=nil
+    local sh=cfg.ar
+    local mc=LP.Character
+    local mh=getR(mc)
+    if not mh then return nil end
+    local ck=Cam.CFrame.LookVector
+    for _,p in ipairs(Players:GetPlayers()) do
+        if p==LP then continue end
+        local c=p.Character
+        local hu=getH(c)
+        local tp=c and (c:FindFirstChild("Head") or getR(c))
+        if tp and hu and (hu.Health or 1)>0 then
+            local d=(mh.Position-tp.Position).Magnitude
+            if d<sh then
+                local di=(tp.Position-Cam.CFrame.Position).Unit
+                local dt=ck:Dot(di)
+                local an=math.deg(math.acos(math.clamp(dt,-1,1)))
+                if an<=cfg.af/2 then sh=d cl=tp end
+            end
+        end
+    end
+    return cl
+end
+
+local function aimL()
+    if not cfg.aim then return end
+    local t=getT()
+    if not t then return end
+    local mc=LP.Character
+    local mh=getR(mc)
+    if not mh then return end
+    local mp=Cam.CFrame.Position
+    local di=(t.Position-mp).Unit
+    local tC=CFrame.new(mp,mp+di)
+    local sm=math.clamp(cfg.as,0.01,1)
+    Cam.CFrame=Cam.CFrame:Lerp(tC,sm)
+end
+
+RunService.RenderStepped:Connect(function()
+    pcall(upE)
+    pcall(upP)
+    pcall(aimL)
+    pcall(function()
+        if cfg.aim and cfg.circ then
+            aimCirc.Visible=true
+            local sz=(cfg.af/90)*180
+            aimCirc.Size=UDim2.new(0,sz,0,sz)
+            aimCirc.Position=UDim2.new(0.5,-sz/2,0.5,-sz/2)
+        else
+            aimCirc.Visible=false
+        end
+    end)
+end)
+
+Players.PlayerRemoving:Connect(function(p) pcall(function() clr(p) end) end)
+Players.PlayerAdded:Connect(function(p) pcall(function() p.CharacterAdded:Connect(function() task.wait(0.5) pcall(function() clr(p) end) end) end) end)
+
+UIS.InputBegan:Connect(function(i,pr)
+    if pr then return end
+    pcall(function()
+        if i.KeyCode==Enum.KeyCode.Escape and mOpen then tgM() end
+        if i.KeyCode==Enum.KeyCode.Q then cfg.aim=not cfg.aim end
+        if i.KeyCode==Enum.KeyCode.Insert then tgM() end
+    end)
+end)
+
+swTab("VISUAL")
+
+pcall(function()
+    game:GetService("StarterGui"):SetCore("SendNotification",{Title="NEXUS",Text="By Purinat - พร้อมใช้งาน",Duration=5})
+end)
