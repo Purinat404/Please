@@ -1,504 +1,74 @@
--- NX3D MINI - By Purinat
-local P=game:GetService("Players")
-local RS=game:GetService("RunService")
-local UI=game:GetService("UserInputService")
-local TW=game:GetService("TweenService")
-local LG=game:GetService("Lighting")
-local LP=P.LocalPlayer
-local CM=workspace.CurrentCamera
-pcall(function() local o=LP:WaitForChild("PlayerGui"):FindFirstChild("NX3D") if o then o:Destroy() end end)
-local A=Color3.fromRGB(200,30,80)
-local B=Color3.fromRGB(120,30,200)
-local BG=Color3.fromRGB(8,3,12)
-local PN=Color3.fromRGB(20,5,25)
-local TX=Color3.fromRGB(240,210,230)
-local DM=Color3.fromRGB(160,110,140)
-local c={fb=false,fog=false,xray=false,fov=70,esp=true,nm=true,hp=true,ds=true,aura=true,box3d=true,md=1500,rb=true,spd=false,sv=30,jmp=false,jv=80,ij=false,afk=true,nc=false,aim=false,ar=500,as=0.15,af=90,circ=true}
-local g=Instance.new("ScreenGui")
-g.Name="NX3D"
-g.ResetOnSpawn=false
-g.DisplayOrder=2147483647
-g.IgnoreGuiInset=true
-g.Parent=LP:WaitForChild("PlayerGui")
-local btn=Instance.new("TextButton")
-btn.Size=UDim2.new(0,46,0,46)
-btn.Position=UDim2.new(1,-66,0,22)
-btn.BackgroundColor3=BG
-btn.Text="◆"
-btn.TextColor3=A
-btn.TextSize=24
-btn.Font=Enum.Font.GothamBlack
-btn.AutoButtonColor=false
-btn.BorderSizePixel=0
-btn.Parent=g
-local bc=Instance.new("UICorner") bc.CornerRadius=UDim.new(0,13) bc.Parent=btn
-local bs=Instance.new("UIStroke") bs.Thickness=2 bs.Color=A bs.Parent=btn
-local bg2=Instance.new("UIStroke") bg2.Thickness=7 bg2.Color=A bg2.Transparency=0.7 bg2.Parent=btn
-task.spawn(function() while btn.Parent do bg2.Transparency=0.4 task.wait(0.8) bg2.Transparency=0.95 task.wait(0.8) end end)
-local mn=Instance.new("Frame")
-mn.Size=UDim2.new(0,340,0,400)
-mn.Position=UDim2.new(1,-360,0,85)
-mn.BackgroundColor3=BG
-mn.BackgroundTransparency=0.05
-mn.BorderSizePixel=0
-mn.Visible=false
-mn.Parent=g
-local mnc=Instance.new("UICorner") mnc.CornerRadius=UDim.new(0,15) mnc.Parent=mn
-local mns=Instance.new("UIStroke") mns.Thickness=2 mns.Color=A mns.Parent=mn
-local hd=Instance.new("Frame")
-hd.Size=UDim2.new(1,0,0,44)
-hd.BackgroundColor3=PN
-hd.BorderSizePixel=0
-hd.Parent=mn
-local hdc=Instance.new("UICorner") hdc.CornerRadius=UDim.new(0,15) hdc.Parent=hd
-local ti=Instance.new("TextLabel")
-ti.Size=UDim2.new(1,-50,1,0)
-ti.Position=UDim2.new(0,15,0,0)
-ti.BackgroundTransparency=1
-ti.Text="◆ NX3D | Purinat"
-ti.TextColor3=A
-ti.TextSize=14
-ti.Font=Enum.Font.GothamBold
-ti.TextXAlignment=Enum.TextXAlignment.Left
-ti.Parent=hd
-local xb=Instance.new("TextButton")
-xb.Size=UDim2.new(0,26,0,26)
-xb.Position=UDim2.new(1,-34,0,9)
-xb.BackgroundColor3=Color3.fromRGB(50,15,35)
-xb.Text="✕"
-xb.TextColor3=Color3.fromRGB(255,120,160)
-xb.TextSize=12
-xb.Font=Enum.Font.GothamBold
-xb.BorderSizePixel=0
-xb.Parent=hd
-local xc=Instance.new("UICorner") xc.CornerRadius=UDim.new(0,7) xc.Parent=xb
-local sc=Instance.new("ScrollingFrame")
-sc.Size=UDim2.new(1,-16,1,-56)
-sc.Position=UDim2.new(0,8,0,50)
-sc.BackgroundTransparency=1
-sc.BorderSizePixel=0
-sc.ScrollBarThickness=3
-sc.ScrollBarImageColor3=A
-sc.CanvasSize=UDim2.new(0,0,0,0)
-sc.AutomaticCanvasSize=Enum.AutomaticSize.Y
-sc.Parent=mn
-local ll=Instance.new("UIListLayout") ll.Padding=UDim.new(0,5) ll.Parent=sc
-local function tog(t,d,cb)
-    local r=Instance.new("Frame")
-    r.Size=UDim2.new(1,-8,0,32)
-    r.BackgroundColor3=PN
-    r.BorderSizePixel=0
-    r.Parent=sc
-    local rc=Instance.new("UICorner") rc.CornerRadius=UDim.new(0,8) rc.Parent=r
-    local l=Instance.new("TextLabel")
-    l.Size=UDim2.new(1,-70,1,0)
-    l.Position=UDim2.new(0,12,0,0)
-    l.BackgroundTransparency=1
-    l.Text=t
-    l.TextColor3=TX
-    l.TextSize=12
-    l.Font=Enum.Font.Code
-    l.TextXAlignment=Enum.TextXAlignment.Left
-    l.Parent=r
-    local t2=Instance.new("TextButton")
-    t2.Size=UDim2.new(0,42,0,20)
-    t2.Position=UDim2.new(1,-52,0.5,-10)
-    t2.BackgroundColor3=d and A or Color3.fromRGB(45,20,40)
-    t2.Text=""
-    t2.AutoButtonColor=false
-    t2.BorderSizePixel=0
-    t2.Parent=r
-    local tc=Instance.new("UICorner") tc.CornerRadius=UDim.new(1,0) tc.Parent=t2
-    local k=Instance.new("Frame")
-    k.Size=UDim2.new(0,16,0,16)
-    k.Position=d and UDim2.new(1,-18,0.5,-8) or UDim2.new(0,2,0.5,-8)
-    k.BackgroundColor3=Color3.fromRGB(255,255,255)
-    k.BorderSizePixel=0
-    k.Parent=t2
-    local kc=Instance.new("UICorner") kc.CornerRadius=UDim.new(1,0) kc.Parent=k
-    local s=d
-    t2.MouseButton1Click:Connect(function()
-        s=not s
-        TW:Create(t2,TweenInfo.new(0.2),{BackgroundColor3=s and A or Color3.fromRGB(45,20,40)}):Play()
-        TW:Create(k,TweenInfo.new(0.2),{Position=s and UDim2.new(1,-18,0.5,-8) or UDim2.new(0,2,0.5,-8)}):Play()
-        if cb then pcall(cb,s) end
-    end)
-end
-local function sli(t,mn2,mx,d,cb)
-    local r=Instance.new("Frame")
-    r.Size=UDim2.new(1,-8,0,50)
-    r.BackgroundColor3=PN
-    r.BorderSizePixel=0
-    r.Parent=sc
-    local rc=Instance.new("UICorner") rc.CornerRadius=UDim.new(0,8) rc.Parent=r
-    local l=Instance.new("TextLabel")
-    l.Size=UDim2.new(1,-20,0,18)
-    l.Position=UDim2.new(0,12,0,5)
-    l.BackgroundTransparency=1
-    l.Text=t..": "..d
-    l.TextColor3=TX
-    l.TextSize=12
-    l.Font=Enum.Font.Code
-    l.TextXAlignment=Enum.TextXAlignment.Left
-    l.Parent=r
-    local b=Instance.new("Frame")
-    b.Size=UDim2.new(1,-24,0,6)
-    b.Position=UDim2.new(0,12,0,34)
-    b.BackgroundColor3=Color3.fromRGB(45,20,40)
-    b.BorderSizePixel=0
-    b.Parent=r
-    local bc2=Instance.new("UICorner") bc2.CornerRadius=UDim.new(1,0) bc2.Parent=b
-    local f=Instance.new("Frame")
-    f.Size=UDim2.new((d-mn2)/(mx-mn2),0,1,0)
-    f.BackgroundColor3=A
-    f.BorderSizePixel=0
-    f.Parent=b
-    local fc=Instance.new("UICorner") fc.CornerRadius=UDim.new(1,0) fc.Parent=f
-    local dr=false
-    local function up(x)
-        local rl=math.clamp((x-b.AbsolutePosition.X)/b.AbsoluteSize.X,0,1)
-        local v=math.floor(mn2+(mx-mn2)*rl)
-        f.Size=UDim2.new(rl,0,1,0)
-        l.Text=t..": "..v
-        if cb then pcall(cb,v) end
-    end
-    b.InputBegan:Connect(function(i)
-        if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then
-            dr=true up(i.Position.X)
-        end
-    end)
-    b.InputEnded:Connect(function(i)
-        if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then
-            dr=false
-        end
-    end)
-    UI.InputChanged:Connect(function(i)
-        if dr and (i.UserInputType==Enum.UserInputType.MouseMovement or i.UserInputType==Enum.UserInputType.Touch) then
-            up(i.Position.X)
-        end
-    end)
-end
-local sec=Instance.new("TextLabel")
-sec.Size=UDim2.new(1,-8,0,20)
-sec.BackgroundTransparency=1
-sec.Text="  ┌─ SETTINGS"
-sec.TextColor3=A
-sec.TextSize=11
-sec.Font=Enum.Font.Code
-sec.TextXAlignment=Enum.TextXAlignment.Left
-sec.Parent=sc
-tog("Fullbright",c.fb,function(v)
-    c.fb=v
-    pcall(function()
-        if v then
-            LG.Ambient=Color3.fromRGB(180,180,180)
-            LG.OutdoorAmbient=Color3.fromRGB(180,180,180)
-            LG.Brightness=3
-        else
-            LG.Ambient=Color3.fromRGB(70,70,70)
-            LG.OutdoorAmbient=Color3.fromRGB(128,128,128)
-            LG.Brightness=2
-        end
-    end)
-end)
-tog("ESP",c.esp,function(v) c.esp=v end)
-tog("3D Box",c.box3d,function(v) c.box3d=v end)
-tog("Name",c.nm,function(v) c.nm=v end)
-tog("Aura",c.aura,function(v) c.aura=v end)
-tog("Rainbow",c.rb,function(v) c.rb=v end)
-sli("Max Dist",50,5000,c.md,function(v) c.md=v end)
-tog("Speed",c.spd,function(v) c.spd=v end)
-sli("Speed Val",16,200,c.sv,function(v) c.sv=v end)
-tog("Jump",c.jmp,function(v) c.jmp=v end)
-sli("Jump Pow",50,300,c.jv,function(v) c.jv=v end)
-tog("Anti-AFK",c.afk,function(v) c.afk=v end)
-tog("Aim (Q)",c.aim,function(v) c.aim=v end)
-sli("Aim Range",50,2000,c.ar,function(v) c.ar=v end)
-sli("Smooth x100",1,30,c.as*100,function(v) c.as=v/100 end)
-local op=false
-local function tgM() op=not op mn.Visible=op end
-btn.MouseButton1Click:Connect(tgM)
-xb.MouseButton1Click:Connect(tgM)
-local dg=false
-local dst,mps
-hd.InputBegan:Connect(function(i)
-    if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then
-        dg=true dst=i.Position mps=mn.Position
-    end
-end)
-UI.InputChanged:Connect(function(i)
-    if dg and (i.UserInputType==Enum.UserInputType.MouseMovement or i.UserInputType==Enum.UserInputType.Touch) then
-        local d=i.Position-dst
-        mn.Position=UDim2.new(mps.X.Scale,mps.X.Offset+d.X,mps.Y.Scale,mps.Y.Offset+d.Y)
-    end
-end)
-UI.InputEnded:Connect(function(i)
-    if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then
-        dg=false
-    end
-end)
-local ac=Instance.new("Frame")
-ac.Size=UDim2.new(0,180,0,180)
-ac.Position=UDim2.new(0.5,-90,0.5,-90)
-ac.BackgroundTransparency=1
-ac.Visible=false
-ac.ZIndex=5
-ac.Parent=g
-local acc=Instance.new("UICorner") acc.CornerRadius=UDim.new(1,0) acc.Parent=ac
-local acs=Instance.new("UIStroke") acs.Thickness=2 acs.Color=A acs.Transparency=0.3 acs.Parent=ac
-local ec={}
-local hue=0
-local function gH(x) if not x then return nil end return x:FindFirstChildOfClass("Humanoid") or x:FindFirstChild("Humanoid") end
-local function gR(x) if not x then return nil end return x:FindFirstChild("HumanoidRootPart") or x:FindFirstChild("UpperTorso") or x:FindFirstChild("Torso") or x:FindFirstChildOfClass("BasePart") end
-local function clr(p)
-    local u=p.UserId
-    local ks={u,u.."_n",u.."_d",u.."_hl"}
-    for i=1,12 do table.insert(ks,u.."_e"..i) end
-    for _,k in ipairs(ks) do
-        if ec[k] then
-            pcall(function() ec[k]:Destroy() end)
-            ec[k]=nil
-        end
-    end
-end
-local function mk(p)
-    if p==LP then return end
-    clr(p)
-    local u=p.UserId
-    for i=1,12 do
-        local line=Instance.new("Frame")
-        line.BackgroundColor3=A
-        line.BorderSizePixel=0
-        line.ZIndex=3
-        line.Visible=false
-        line.Parent=g
-        local lc=Instance.new("UICorner")
-        lc.CornerRadius=UDim.new(1,0)
-        lc.Parent=line
-        ec[u.."_e"..i]=line
-    end
-    local n=Instance.new("TextLabel")
-    n.BackgroundTransparency=1
-    n.Text=p.Name
-    n.TextColor3=TX
-    n.TextStrokeTransparency=0
-    n.TextSize=12
-    n.Font=Enum.Font.GothamBold
-    n.ZIndex=5
-    n.Parent=g
-    ec[u.."_n"]=n
-    local d=Instance.new("TextLabel")
-    d.BackgroundTransparency=1
-    d.Text=""
-    d.TextColor3=DM
-    d.TextStrokeTransparency=0
-    d.TextSize=11
-    d.Font=Enum.Font.Code
-    d.ZIndex=5
-    d.Parent=g
-    ec[u.."_d"]=d
-    local hl=Instance.new("Highlight")
-    hl.FillColor=A
-    hl.FillTransparency=0.7
-    hl.OutlineColor=B
-    hl.OutlineTransparency=0.2
-    hl.DepthMode=Enum.HighlightDepthMode.AlwaysOnTop
-    hl.Parent=g
-    ec[u.."_hl"]=hl
-    ec[u]=true
-end
-local function upE()
-    hue=(hue+0.008)%1
-    if not c.esp then
-        for _,p in ipairs(P:GetPlayers()) do if p~=LP then clr(p) end end
-        return
-    end
-    for _,p in ipairs(P:GetPlayers()) do
-        if p==LP then continue end
-        local ch=p.Character
-        if not ch then continue end
-        local hr=gR(ch)
-        local hu=gH(ch)
-        if not hr or not hu then continue end
-        local u=p.UserId
-        if not ec[u] then mk(p) task.wait(0.03) end
-        local di=(CM.CFrame.Position-hr.Position).Magnitude
-        if di>c.md then
-            for i=1,12 do if ec[u.."_e"..i] then ec[u.."_e"..i].Visible=false end end
-            if ec[u.."_n"] then ec[u.."_n"].Visible=false end
-            if ec[u.."_d"] then ec[u.."_d"].Visible=false end
-            if ec[u.."_hl"] then ec[u.."_hl"].Adornee=nil end
-            continue
-        end
-        local rc=A
-        if c.rb then rc=Color3.fromHSV(hue,0.9,1) end
-        if c.box3d then
-            local cf=hr.CFrame
-            local pts={
-                cf*Vector3.new(-1.5,3,-1),
-                cf*Vector3.new(1.5,3,-1),
-                cf*Vector3.new(-1.5,-3,-1),
-                cf*Vector3.new(1.5,-3,-1),
-                cf*Vector3.new(-1.5,3,1),
-                cf*Vector3.new(1.5,3,1),
-                cf*Vector3.new(-1.5,-3,1),
-                cf*Vector3.new(1.5,-3,1)
-            }
-            local sp={}
-            for i=1,8 do
-                local vp,on=CM:WorldToViewportPoint(pts[i])
-                sp[i]={x=vp.X,y=vp.Y,on=on}
-            end
-            local segs={{1,2},{3,4},{5,6},{7,8},{1,3},{2,4},{5,7},{6,8},{1,5},{2,6},{3,7},{4,8}}
-            for i=1,12 do
-                local sg=segs[i]
-                local a=sp[sg[1]]
-                local b=sp[sg[2]]
-                local line=ec[u.."_e"..i]
-                if line and a and b and a.on and b.on then
-                    local dx=b.x-a.x
-                    local dy=b.y-a.y
-                    local len=math.sqrt(dx*dx+dy*dy)
-                    local ang=math.deg(math.atan2(dy,dx))
-                    line.Visible=true
-                    line.Size=UDim2.new(0,len,0,1.5)
-                    line.Position=UDim2.new(0,a.x,0,a.y)
-                    line.Rotation=ang
-                    line.BackgroundColor3=rc
-                elseif line then
-                    line.Visible=false
-                end
-            end
-            if ec[u.."_n"] then
-                local tp=sp[1]
-                if tp and tp.on then
-                    ec[u.."_n"].Visible=c.nm
-                    ec[u.."_n"].TextColor3=rc
-                    ec[u.."_n"].Size=UDim2.new(0,200,0,16)
-                    ec[u.."_n"].Position=UDim2.new(0,tp.x-100,0,tp.y-22)
-                end
-            end
-            if ec[u.."_d"] then
-                local bt=sp[3]
-                if bt and bt.on then
-                    ec[u.."_d"].Visible=c.ds
-                    ec[u.."_d"].Text=math.floor(di).." studs"
-                    ec[u.."_d"].Size=UDim2.new(0,200,0,14)
-                    ec[u.."_d"].Position=UDim2.new(0,bt.x-100,0,bt.y+4)
-                end
-            end
-        else
-            for i=1,12 do if ec[u.."_e"..i] then ec[u.."_e"..i].Visible=false end end
-        end
-        if ec[u.."_hl"] then
-            ec[u.."_hl"].Adornee=(c.aura and di<=c.md) and ch or nil
-            ec[u.."_hl"].FillColor=rc
-            ec[u.."_hl"].OutlineColor=rc
-        end
-    end
-end
-local function upP()
-    pcall(function()
-        local x=LP.Character
-        local hu=gH(x)
-        if hu then
-            pcall(function() hu.WalkSpeed=c.spd and c.sv or 16 end)
-            if c.jmp then pcall(function() hu.JumpPower=c.jv hu.UseJumpPower=true end)
-            else pcall(function() hu.JumpPower=50 end) end
-        end
-        if c.nc and x then
-            for _,p in pairs(x:GetDescendants()) do
-                pcall(function() if p:IsA("BasePart") then p.CanCollide=false end end)
-            end
-        end
-    end)
-end
-UI.JumpRequest:Connect(function()
-    pcall(function()
-        if c.ij then
-            local x=LP.Character
-            local hu=gH(x)
-            if hu then hu:ChangeState(Enum.HumanoidStateType.Jumping) end
-        end
-    end)
-end)
-LP.Idled:Connect(function()
-    pcall(function()
-        if c.afk then
-            game:GetService("VirtualUser"):CaptureController()
-            game:GetService("VirtualUser"):ClickButton2(Vector2.new())
-        end
-    end)
-end)
-local function gT()
-    local cl=nil
-    local sh=c.ar
-    local mc=LP.Character
-    local mh=gR(mc)
-    if not mh then return nil end
-    local ck=CM.CFrame.LookVector
-    for _,p in ipairs(P:GetPlayers()) do
-        if p==LP then continue end
-        local x=p.Character
-        local hu=gH(x)
-        local tp=x and (x:FindFirstChild("Head") or gR(x))
-        if tp and hu and (hu.Health or 1)>0 then
-            local d=(mh.Position-tp.Position).Magnitude
-            if d<sh then
-                local di=(tp.Position-CM.CFrame.Position).Unit
-                local dt=ck:Dot(di)
-                local an=math.deg(math.acos(math.clamp(dt,-1,1)))
-                if an<=c.af/2 then sh=d cl=tp end
-            end
-        end
-    end
-    return cl
-end
-local function aimL()
-    if not c.aim then return end
-    local t=gT()
-    if not t then return end
-    local mc=LP.Character
-    local mh=gR(mc)
-    if not mh then return end
-    local mp=CM.CFrame.Position
-    local di=(t.Position-mp).Unit
-    local tC=CFrame.new(mp,mp+di)
-    local sm=math.clamp(c.as,0.01,1)
-    CM.CFrame=CM.CFrame:Lerp(tC,sm)
-end
-RS.RenderStepped:Connect(function()
-    pcall(upE)
-    pcall(upP)
-    pcall(aimL)
-    pcall(function()
-        if c.aim and c.circ then
-            ac.Visible=true
-            local sz=(c.af/90)*180
-            ac.Size=UDim2.new(0,sz,0,sz)
-            ac.Position=UDim2.new(0.5,-sz/2,0.5,-sz/2)
-        else
-            ac.Visible=false
-        end
-    end)
-end)
-P.PlayerRemoving:Connect(function(p) pcall(function() clr(p) end) end)
-P.PlayerAdded:Connect(function(p)
-    pcall(function()
-        p.CharacterAdded:Connect(function()
-            task.wait(0.5)
-            pcall(function() clr(p) end)
-        end)
-    end)
-end)
-UI.InputBegan:Connect(function(i,pr)
-    if pr then return end
-    pcall(function()
-        if i.KeyCode==Enum.KeyCode.Escape and op then tgM() end
-        if i.KeyCode==Enum.KeyCode.Q then c.aim=not c.aim end
-        if i.KeyCode==Enum.KeyCode.Insert then tgM() end
-    end)
-end)
-pcall(function()
-    game:GetService("StarterGui"):SetCore("SendNotification",{Title="NX3D",Text="By Purinat",Duration=5})
+-- NX GREEN MINI - By Purinat
+local P=game:GetService("Players") local RS=game:GetService("RunService") local UI=game:GetService("UserInputService") local TW=game:GetService("TweenService") local LG=game:GetService("Lighting") local LP=P.LocalPlayer local CM=workspace.CurrentCamera
+pcall(function() local o=LP:WaitForChild("PlayerGui"):FindFirstChild("NXG") if o then o:Destroy() end end)
+local A=Color3.fromRGB(50,220,100) local B=Color3.fromRGB(20,180,80) local BG=Color3.fromRGB(5,15,8) local PN=Color3.fromRGB(12,28,16) local TX=Color3.fromRGB(210,255,220) local DM=Color3.fromRGB(120,180,140)
+local c={fb=false,esp=true,nm=true,ds=true,aura=true,box3d=true,md=1500,rb=false,spd=false,sv=30,jmp=false,jv=80,ij=false,afk=true,nc=false,aim=false,ar=500,as=0.15,af=90,manualLock=false,lockedUser=0}
+local g=Instance.new("ScreenGui") g.Name="NXG" g.ResetOnSpawn=false g.DisplayOrder=2147483647 g.IgnoreGuiInset=true g.Parent=LP:WaitForChild("PlayerGui")
+local pw=Instance.new("Frame") pw.Size=UDim2.new(1,0,1,0) pw.BackgroundColor3=Color3.fromRGB(0,0,0) pw.BackgroundTransparency=0.3 pw.BorderSizePixel=0 pw.ZIndex=500 pw.Parent=g
+local pb=Instance.new("Frame") pb.Size=UDim2.new(0,300,0,180) pb.Position=UDim2.new(0.5,-150,0.5,-90) pb.BackgroundColor3=BG pb.BorderSizePixel=0 pb.ZIndex=501 pb.Parent=pw
+local pbc=Instance.new("UICorner") pbc.CornerRadius=UDim.new(0,14) pbc.Parent=pb local pbs=Instance.new("UIStroke") pbs.Thickness=2 pbs.Color=A pbs.Parent=pb
+local pt=Instance.new("TextLabel") pt.Size=UDim2.new(1,0,0,30) pt.Position=UDim2.new(0,0,0,15) pt.BackgroundTransparency=1 pt.Text="◆ NX GREEN" pt.TextColor3=A pt.TextSize=20 pt.Font=Enum.Font.GothamBlack pt.ZIndex=502 pt.Parent=pb
+local pl=Instance.new("TextLabel") pl.Size=UDim2.new(1,0,0,16) pl.Position=UDim2.new(0,0,0,50) pl.BackgroundTransparency=1 pl.Text="Enter Password" pl.TextColor3=DM pl.TextSize=11 pl.Font=Enum.Font.Code pl.ZIndex=502 pl.Parent=pb
+local pi=Instance.new("TextBox") pi.Size=UDim2.new(1,-40,0,38) pi.Position=UDim2.new(0,20,0,80) pi.BackgroundColor3=PN pi.BorderSizePixel=0 pi.Text="" pi.PlaceholderText="ใส่รหัส..." pi.PlaceholderColor3=DM pi.TextColor3=TX pi.TextSize=14 pi.Font=Enum.Font.Code pi.ZIndex=502 pi.Parent=pb
+local pic=Instance.new("UICorner") pic.CornerRadius=UDim.new(0,8) pic.Parent=pi local pis=Instance.new("UIStroke") pis.Thickness=1.5 pis.Color=B pis.Parent=pi
+local pbtn=Instance.new("TextButton") pbtn.Size=UDim2.new(1,-40,0,36) pbtn.Position=UDim2.new(0,20,1,-50) pbtn.BackgroundColor3=A pbtn.Text="ยืนยัน" pbtn.TextColor3=BG pbtn.TextSize=14 pbtn.Font=Enum.Font.GothamBold pbtn.AutoButtonColor=false pbtn.BorderSizePixel=0 pbtn.ZIndex=502 pbtn.Parent=pb
+local pbc2=Instance.new("UICorner") pbc2.CornerRadius=UDim.new(0,8) pbc2.Parent=pbtn
+local ps=Instance.new("TextLabel") ps.Size=UDim2.new(1,-40,0,16) ps.Position=UDim2.new(0,20,1,-70) ps.BackgroundTransparency=1 ps.Text="" ps.TextColor3=Color3.fromRGB(255,80,80) ps.TextSize=11 ps.Font=Enum.Font.Code ps.ZIndex=502 ps.Parent=pb
+local function try() if pi.Text=="nwa" then ps.TextColor3=A ps.Text="✓ OK" task.wait(0.4) pw:Destroy() return true else ps.TextColor3=Color3.fromRGB(255,80,80) ps.Text="✗ ผิด" return false end end
+pbtn.MouseButton1Click:Connect(try) pi.FocusLost:Connect(function(e) if e then try() end end)
+task.spawn(function()
+    while pw and pw.Parent do task.wait(0.1) end
+    local btn=Instance.new("TextButton") btn.Size=UDim2.new(0,44,0,44) btn.Position=UDim2.new(1,-64,0,22) btn.BackgroundColor3=BG btn.Text="◆" btn.TextColor3=A btn.TextSize=22 btn.Font=Enum.Font.GothamBlack btn.AutoButtonColor=false btn.BorderSizePixel=0 btn.Parent=g
+    local bc=Instance.new("UICorner") bc.CornerRadius=UDim.new(0,12) bc.Parent=btn local bs=Instance.new("UIStroke") bs.Thickness=2 bs.Color=A bs.Parent=btn
+    local mn=Instance.new("Frame") mn.Size=UDim2.new(0,320,0,380) mn.Position=UDim2.new(1,-340,0,85) mn.BackgroundColor3=BG mn.BackgroundTransparency=0.05 mn.BorderSizePixel=0 mn.Visible=false mn.Parent=g
+    local mc=Instance.new("UICorner") mc.CornerRadius=UDim.new(0,14) mc.Parent=mn local ms=Instance.new("UIStroke") ms.Thickness=2 ms.Color=A ms.Parent=mn
+    local hd=Instance.new("Frame") hd.Size=UDim2.new(1,0,0,42) hd.BackgroundColor3=PN hd.BorderSizePixel=0 hd.Parent=mn
+    local hc=Instance.new("UICorner") hc.CornerRadius=UDim.new(0,14) hc.Parent=hd
+    local ti=Instance.new("TextLabel") ti.Size=UDim2.new(1,-50,1,0) ti.Position=UDim2.new(0,15,0,0) ti.BackgroundTransparency=1 ti.Text="◆ NX GREEN | Purinat" ti.TextColor3=A ti.TextSize=13 ti.Font=Enum.Font.GothamBold ti.TextXAlignment=Enum.TextXAlignment.Left ti.Parent=hd
+    local xb=Instance.new("TextButton") xb.Size=UDim2.new(0,26,0,26) xb.Position=UDim2.new(1,-34,0,8) xb.BackgroundColor3=Color3.fromRGB(15,45,25) xb.Text="✕" xb.TextColor3=Color3.fromRGB(100,255,150) xb.TextSize=12 xb.Font=Enum.Font.GothamBold xb.BorderSizePixel=0 xb.Parent=hd
+    local xc=Instance.new("UICorner") xc.CornerRadius=UDim.new(0,7) xc.Parent=xb
+    local sc=Instance.new("ScrollingFrame") sc.Size=UDim2.new(1,-16,1,-56) sc.Position=UDim2.new(0,8,0,48) sc.BackgroundTransparency=1 sc.BorderSizePixel=0 sc.ScrollBarThickness=3 sc.ScrollBarImageColor3=A sc.CanvasSize=UDim2.new(0,0,0,0) sc.AutomaticCanvasSize=Enum.AutomaticSize.Y sc.Parent=mn
+    local ll=Instance.new("UIListLayout") ll.Padding=UDim.new(0,4) ll.Parent=sc
+    local function tog(t,d,cb) local r=Instance.new("Frame") r.Size=UDim2.new(1,-8,0,30) r.BackgroundColor3=PN r.BorderSizePixel=0 r.Parent=sc local rc=Instance.new("UICorner") rc.CornerRadius=UDim.new(0,7) rc.Parent=r local l=Instance.new("TextLabel") l.Size=UDim2.new(1,-70,1,0) l.Position=UDim2.new(0,10,0,0) l.BackgroundTransparency=1 l.Text=t l.TextColor3=TX l.TextSize=11 l.Font=Enum.Font.Code l.TextXAlignment=Enum.TextXAlignment.Left l.Parent=r local t2=Instance.new("TextButton") t2.Size=UDim2.new(0,40,0,18) t2.Position=UDim2.new(1,-48,0.5,-9) t2.BackgroundColor3=d and A or Color3.fromRGB(20,45,28) t2.Text="" t2.AutoButtonColor=false t2.BorderSizePixel=0 t2.Parent=r local tc=Instance.new("UICorner") tc.CornerRadius=UDim.new(1,0) tc.Parent=t2 local k=Instance.new("Frame") k.Size=UDim2.new(0,14,0,14) k.Position=d and UDim2.new(1,-16,0.5,-7) or UDim2.new(0,2,0.5,-7) k.BackgroundColor3=Color3.fromRGB(255,255,255) k.BorderSizePixel=0 k.Parent=t2 local kc=Instance.new("UICorner") kc.CornerRadius=UDim.new(1,0) kc.Parent=k local s=d t2.MouseButton1Click:Connect(function() s=not s TW:Create(t2,TweenInfo.new(0.2),{BackgroundColor3=s and A or Color3.fromRGB(20,45,28)}):Play() TW:Create(k,TweenInfo.new(0.2),{Position=s and UDim2.new(1,-16,0.5,-7) or UDim2.new(0,2,0.5,-7)}):Play() if cb then pcall(cb,s) end end) end
+    local function sli(t,mn2,mx,d,cb) local r=Instance.new("Frame") r.Size=UDim2.new(1,-8,0,46) r.BackgroundColor3=PN r.BorderSizePixel=0 r.Parent=sc local rc=Instance.new("UICorner") rc.CornerRadius=UDim.new(0,7) rc.Parent=r local l=Instance.new("TextLabel") l.Size=UDim2.new(1,-20,0,16) l.Position=UDim2.new(0,10,0,4) l.BackgroundTransparency=1 l.Text=t..": "..d l.TextColor3=TX l.TextSize=11 l.Font=Enum.Font.Code l.TextXAlignment=Enum.TextXAlignment.Left l.Parent=r local b=Instance.new("Frame") b.Size=UDim2.new(1,-20,0,5) b.Position=UDim2.new(0,10,0,32) b.BackgroundColor3=Color3.fromRGB(20,45,28) b.BorderSizePixel=0 b.Parent=r local bc2=Instance.new("UICorner") bc2.CornerRadius=UDim.new(1,0) bc2.Parent=b local f=Instance.new("Frame") f.Size=UDim2.new((d-mn2)/(mx-mn2),0,1,0) f.BackgroundColor3=A f.BorderSizePixel=0 f.Parent=b local fc=Instance.new("UICorner") fc.CornerRadius=UDim.new(1,0) fc.Parent=f local dr=false local function up(x) local rl=math.clamp((x-b.AbsolutePosition.X)/b.AbsoluteSize.X,0,1) local v=math.floor(mn2+(mx-mn2)*rl) f.Size=UDim2.new(rl,0,1,0) l.Text=t..": "..v if cb then pcall(cb,v) end end b.InputBegan:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then dr=true up(i.Position.X) end end) b.InputEnded:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then dr=false end end) UI.InputChanged:Connect(function(i) if dr and (i.UserInputType==Enum.UserInputType.MouseMovement or i.UserInputType==Enum.UserInputType.Touch) then up(i.Position.X) end end) end
+    tog("Fullbright",c.fb,function(v) c.fb=v pcall(function() if v then LG.Ambient=Color3.fromRGB(180,180,180) LG.OutdoorAmbient=Color3.fromRGB(180,180,180) LG.Brightness=3 else LG.Ambient=Color3.fromRGB(70,70,70) LG.OutdoorAmbient=Color3.fromRGB(128,128,128) LG.Brightness=2 end end) end)
+    tog("ESP",c.esp,function(v) c.esp=v end)
+    tog("3D Box",c.box3d,function(v) c.box3d=v end)
+    tog("Name",c.nm,function(v) c.nm=v end)
+    tog("Aura",c.aura,function(v) c.aura=v end)
+    tog("Rainbow",c.rb,function(v) c.rb=v end)
+    sli("Max Dist",50,5000,c.md,function(v) c.md=v end)
+    tog("Speed",c.spd,function(v) c.spd=v end)
+    sli("Speed Val",16,200,c.sv,function(v) c.sv=v end)
+    tog("Jump",c.jmp,function(v) c.jmp=v end)
+    sli("Jump Pow",50,300,c.jv,function(v) c.jv=v end)
+    tog("Anti-AFK",c.afk,function(v) c.afk=v end)
+    tog("No Clip",c.nc,function(v) c.nc=v end)
+    tog("Aim (Q)",c.aim,function(v) c.aim=v end)
+    tog("กดเลือกล็อคเป้า",c.manualLock,function(v) c.manualLock=v if not v then c.lockedUser=0 end end)
+    tog("ล้างเป้าล็อค",false,function() c.lockedUser=0 end)
+    sli("Aim Range",50,2000,c.ar,function(v) c.ar=v end)
+    sli("Smooth x100",1,30,c.as*100,function(v) c.as=v/100 end)
+    local op=false local function tgM() op=not op mn.Visible=op end
+    btn.MouseButton1Click:Connect(tgM) xb.MouseButton1Click:Connect(tgM)
+    local dg=false local dst,mps
+    hd.InputBegan:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then dg=true dst=i.Position mps=mn.Position end end)
+    UI.InputChanged:Connect(function(i) if dg and (i.UserInputType==Enum.UserInputType.MouseMovement or i.UserInputType==Enum.UserInputType.Touch) then local d=i.Position-dst mn.Position=UDim2.new(mps.X.Scale,mps.X.Offset+d.X,mps.Y.Scale,mps.Y.Offset+d.Y) end end)
+    UI.InputEnded:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then dg=false end end)
+    local ec={}
+    local function gH(x) if not x then return nil end return x:FindFirstChildOfClass("Humanoid") or x:FindFirstChild("Humanoid") end
+    local function gR(x) if not x then return nil end return x:FindFirstChild("HumanoidRootPart") or x:FindFirstChild("UpperTorso") or x:FindFirstChild("Torso") or x:FindFirstChildOfClass("BasePart") end
+    local function clr(p) local u=p.UserId local ks={u,u.."_n",u.."_d",u.."_hl",u.."_click"} for i=1,12 do table.insert(ks,u.."_e"..i) end for _,k in ipairs(ks) do if ec[k] then pcall(function() ec[k]:Destroy() end) ec[k]=nil end end end
+    local function mk(p) if p==LP then return end clr(p) local u=p.UserId for i=1,12 do local l=Instance.new("Frame") l.BackgroundColor3=A l.BorderSizePixel=0 l.ZIndex=3 l.Visible=false l.Parent=g ec[u.."_e"..i]=l end local n=Instance.new("TextLabel") n.BackgroundTransparency=1 n.Text=p.Name n.TextColor3=TX n.TextStrokeTransparency=0 n.TextSize=11 n.Font=Enum.Font.GothamBold n.ZIndex=5 n.Visible=false n.Parent=g ec[u.."_n"]=n local d=Instance.new("TextLabel") d.BackgroundTransparency=1 d.Text="" d.TextColor3=DM d.TextStrokeTransparency=0 d.TextSize=10 d.Font=Enum.Font.Code d.ZIndex=5 d.Visible=false d.Parent=g ec[u.."_d"]=d local hl=Instance.new("Highlight") hl.FillColor=A hl.FillTransparency=0.7 hl.OutlineColor=B hl.OutlineTransparency=0.2 hl.DepthMode=Enum.HighlightDepthMode.AlwaysOnTop hl.Parent=g ec[u.."_hl"]=hl local cl=Instance.new("TextButton") cl.BackgroundTransparency=1 cl.Text="" cl.BorderSizePixel=0 cl.ZIndex=10 cl.Visible=false cl.Parent=g cl.MouseButton1Click:Connect(function() if c.manualLock then if c.lockedUser==p.UserId then c.lockedUser=0 else c.lockedUser=p.UserId end end end) ec[u.."_click"]=cl ec[u]=true end
+    local function upE() if not c.esp then for _,p in ipairs(P:GetPlayers()) do if p~=LP then clr(p) end end return end for _,p in ipairs(P:GetPlayers()) do if p==LP then continue end local ch=p.Character if not ch then continue end local hr=gR(ch) local hu=gH(ch) if not hr or not hu then continue end local u=p.UserId if not ec[u] then mk(p) task.wait(0.03) end local di=(CM.CFrame.Position-hr.Position).Magnitude if di>c.md then for i=1,12 do if ec[u.."_e"..i] then ec[u.."_e"..i].Visible=false end end if ec[u.."_n"] then ec[u.."_n"].Visible=false end if ec[u.."_d"] then ec[u.."_d"].Visible=false end if ec[u.."_click"] then ec[u.."_click"].Visible=false end if ec[u.."_hl"] then ec[u.."_hl"].Adornee=nil end continue end local rc=A if c.rb then rc=Color3.fromHSV((tick()*0.05)%1,0.9,1) end if c.lockedUser==u then rc=Color3.fromRGB(255,255,100) end if c.box3d then local cf=hr.CFrame local sx,sy,sz=2.2,3.5,1.5 local pts={cf*Vector3.new(-sx,sy,-sz),cf*Vector3.new(sx,sy,-sz),cf*Vector3.new(-sx,-sy,-sz),cf*Vector3.new(sx,-sy,-sz),cf*Vector3.new(-sx,sy,sz),cf*Vector3.new(sx,sy,sz),cf*Vector3.new(-sx,-sy,sz),cf*Vector3.new(sx,-sy,sz)} local sp={} for i=1,8 do local vp,on=CM:WorldToViewportPoint(pts[i]) sp[i]={x=vp.X,y=vp.Y,on=on} end local segs={{1,2},{3,4},{5,6},{7,8},{1,3},{2,4},{5,7},{6,8},{1,5},{2,6},{3,7},{4,8}} for i=1,12 do local sg=segs[i] local a=sp[sg[1]] local b=sp[sg[2]] local ln=ec[u.."_e"..i] if ln and a and b and a.on and b.on then local dx=b.x-a.x local dy=b.y-a.y local len=math.sqrt(dx*dx+dy*dy) local ang=math.deg(math.atan2(dy,dx)) ln.Visible=true ln.Size=UDim2.new(0,len,0,1.5) ln.Position=UDim2.new(0,a.x,0,a.y) ln.Rotation=ang ln.BackgroundColor3=rc else if ln then ln.Visible=false end end end if ec[u.."_n"] then local tp=sp[1] if tp and tp.on then ec[u.."_n"].Visible=c.nm ec[u.."_n"].TextColor3=rc ec[u.."_n"].Size=UDim2.new(0,140,0,14) ec[u.."_n"].Position=UDim2.new(0,tp.x-70,0,tp.y-18) end end if ec[u.."_d"] then local bt=sp[3] if bt and bt.on then ec[u.."_d"].Visible=c.ds ec[u.."_d"].Text=math.floor(di).." studs" ec[u.."_d"].Size=UDim2.new(0,140,0,14) ec[u.."_d"].Position=UDim2.new(0,bt.x-70,0,bt.y+4) end end if ec[u.."_click"] then local tp=sp[1] local bt=sp[3] if tp and bt and tp.on and bt.on and sp[2].on then local w=math.abs(sp[2].x-sp[1].x) local h=bt.y-tp.y ec[u.."_click"].Size=UDim2.new(0,w,0,h) ec[u.."_click"].Position=UDim2.new(0,tp.x,0,tp.y) ec[u.."_click"].Visible=true else ec[u.."_click"].Visible=false end end else for i=1,12 do if ec[u.."_e"..i] then ec[u.."_e"..i].Visible=false end end if ec[u.."_click"] then ec[u.."_click"].Visible=false end end if ec[u.."_hl"] then ec[u.."_hl"].Adornee=(c.aura and di<=c.md) and ch or nil ec[u.."_hl"].FillColor=rc ec[u.."_hl"].OutlineColor=rc end end end
+    local function upP() pcall(function() local x=LP.Character local hu=gH(x) if hu then pcall(function() hu.WalkSpeed=c.spd and c.sv or 16 end) if c.jmp then pcall(function() hu.JumpPower=c.jv hu.UseJumpPower=true end) else pcall(function() hu.JumpPower=50 end) end end if c.nc and x then for _,p in pairs(x:GetDescendants()) do pcall(function() if p:IsA("BasePart") then p.CanCollide=false end end) end end end) end
+    UI.JumpRequest:Connect(function() pcall(function() if c.ij then local x=LP.Character local hu=gH(x) if hu then hu:ChangeState(Enum.HumanoidStateType.Jumping) end end end) end)
+    LP.Idled:Connect(function() pcall(function() if c.afk then game:GetService("VirtualUser"):CaptureController() game:GetService("VirtualUser"):ClickButton2(Vector2.new()) end end) end)
+    local function gT() local mc=LP.Character local mh=gR(mc) if not mh then return nil end if c.lockedUser~=0 then for _,p in ipairs(P:GetPlayers()) do if p.UserId==c.lockedUser then local ch=p.Character if ch then local hum=gH(ch) local head=ch:FindFirstChild("Head") or gR(ch) if head and hum and (hum.Health or 1)>0 then return head else c.lockedUser=0 end end end end end local cl=nil local sh=c.ar local ck=CM.CFrame.LookVector for _,p in ipairs(P:GetPlayers()) do if p==LP then continue end local x=p.Character local hu=gH(x) local tp=x and (x:FindFirstChild("Head") or gR(x)) if tp and hu and (hu.Health or 1)>0 then local d=(mh.Position-tp.Position).Magnitude if d<sh then local di=(tp.Position-CM.CFrame.Position).Unit local dt=ck:Dot(di) local an=math.deg(math.acos(math.clamp(dt,-1,1))) if an<=c.af/2 then sh=d cl=tp end end end end return cl end
+    local function aimL() if not c.aim then return end local t=gT() if not t then return end local mc=LP.Character local mh=gR(mc) if not mh then return end local mp=CM.CFrame.Position local di=(t.Position-mp).Unit local tC=CFrame.new(mp,mp+di) local sm=math.clamp(c.as,0.01,1) CM.CFrame=CM.CFrame:Lerp(tC,sm) end
+    RS.RenderStepped:Connect(function() pcall(upE) pcall(upP) pcall(aimL) end)
+    P.PlayerRemoving:Connect(function(p) pcall(function() clr(p) end) end)
+    P.PlayerAdded:Connect(function(p) pcall(function() p.CharacterAdded:Connect(function() task.wait(0.5) pcall(function() clr(p) end) end) end) end)
+    UI.InputBegan:Connect(function(i,pr) if pr then return end pcall(function() if i.KeyCode==Enum.KeyCode.Escape and op then tgM() end if i.KeyCode==Enum.KeyCode.Q then c.aim=not c.aim end if i.KeyCode==Enum.KeyCode.Insert then tgM() end end) end)
+    pcall(function() game:GetService("StarterGui"):SetCore("SendNotification",{Title="NX GREEN",Text="By Purinat",Duration=5}) end)
 end)
