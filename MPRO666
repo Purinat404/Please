@@ -351,7 +351,14 @@ hFx.Position=UDim2.new(0,0,1,-15)
 hFx.BackgroundColor3=C.panel
 hFx.BorderSizePixel=0
 hFx.Parent=h
-
+sh then local dir=(tp.Position-Cam.CFrame.Position).Unit local dot=cl2:Dot(dir) local ang=math.deg(math.acos(math.clamp(dot,-1,1))) if ang<=cfg.aimFOV/2 then sh=d cl=tp end end end end return cl end
+local function aimLock() if not cfg.aim then return end local t=getTgt() if not t then return end local mc=LP.Character local mh=getHRP(mc) if not mh then return end local mp=Cam.CFrame.Position local dir=(t.Position-mp).Unit local tCF=CFrame.new(mp,mp+dir) local sm=math.clamp(cfg.aimSmooth,0.01,1) Cam.CFrame=Cam.CFrame:Lerp(tCF,sm) end
+RunService.RenderStepped:Connect(function() pcall(updateESP) pcall(updP) pcall(aimLock) pcall(function() if cfg.aim and cfg.showCircle then aimCirc.Visible=true local sz=(cfg.aimFOV/90)*180 aimCirc.Size=UDim2.new(0,sz,0,sz) aimCirc.Position=UDim2.new(0.5,-sz/2,0.5,-sz/2) else aimCirc.Visible=false end end) end)
+Players.PlayerRemoving:Connect(function(p) pcall(function() clearESP(p) end) end)
+Players.PlayerAdded:Connect(function(p) pcall(function() p.CharacterAdded:Connect(function() task.wait(0.5) pcall(function() clearESP(p) end) end) end) end)
+UIS.InputBegan:Connect(function(i,pr) if pr then return end pcall(function() if i.KeyCode==Enum.KeyCode.Escape and mOpen then tgMenu() end if i.KeyCode==Enum.KeyCode.Q then cfg.aim=not cfg.aim end if i.KeyCode==Enum.KeyCode.Insert then tgMenu() end end) end)
+switchTab("VISUAL")
+pcall(function() game:GetService("StarterGui"):SetCore("SendNotification",{Title="NEXUS",Text="By Purinat - พร้อมใช้งาน",Duration=5}) end)
 local logoBox=Instance.new("Frame")
 logoBox.Size=UDim2.new(0,32,0,32)
 logoBox.Position=UDim2.new(0,10,0,8)
