@@ -1,4 +1,5 @@
 -- NX GREEN v3 ULTIMATE - By Purinat
+-- Part 1/3
 local P=game:GetService("Players")
 local RS=game:GetService("RunService")
 local UI=game:GetService("UserInputService")
@@ -21,7 +22,6 @@ g.ResetOnSpawn=false
 g.DisplayOrder=2147483647
 g.IgnoreGuiInset=true
 g.Parent=LP:WaitForChild("PlayerGui")
--- ===== PASSWORD =====
 local pw=Instance.new("Frame")
 pw.Size=UDim2.new(1,0,1,0)
 pw.BackgroundColor3=Color3.fromRGB(0,0,0)
@@ -109,7 +109,7 @@ local function try()
 end
 pbtn.MouseButton1Click:Connect(try)
 pi.FocusLost:Connect(function(e) if e then try() end end)
--- ===== MAIN =====
+-- Part 2/3
 task.spawn(function()
     while pw and pw.Parent do task.wait(0.1) end
     local btn=Instance.new("TextButton")
@@ -377,7 +377,7 @@ task.spawn(function()
             dg=false
         end
     end)
-    -- ===== ESP =====
+    -- Part 3/3
     local ec={}
     local function gH(x) if not x then return nil end return x:FindFirstChildOfClass("Humanoid") or x:FindFirstChild("Humanoid") end
     local function gR(x) if not x then return nil end return x:FindFirstChild("HumanoidRootPart") or x:FindFirstChild("UpperTorso") or x:FindFirstChild("Torso") or x:FindFirstChildOfClass("BasePart") end
@@ -529,4 +529,274 @@ task.spawn(function()
                     if ln and a and b and a.on and b.on then
                         local dx=b.x-a.x
                         local dy=b.y-a.y
-                        
+                        local len=math.sqrt(dx*dx+dy*dy)
+                        local ang=math.deg(math.atan2(dy,dx))
+                        local hueSeg=((t+i*0.08)%1)
+                        local rcSeg=isLocked and Color3.fromRGB(255,255,100) or Color3.fromHSV(hueSeg,1,1)
+                        if not c.rb and not isLocked then rcSeg=A end
+                        ln.Visible=true
+                        ln.Size=UDim2.new(0,len,0,2)
+                        ln.Position=UDim2.new(0,a.x,0,a.y)
+                        ln.Rotation=ang
+                        ln.BackgroundColor3=rcSeg
+                    else
+                        if ln then ln.Visible=false end
+                    end
+                end
+                local csize=14
+                for i=1,8 do
+                    local pt2=sp[i]
+                    local h=ec[u.."_ch"..i]
+                    local v=ec[u.."_cv"..i]
+                    if pt2 and pt2.on and h and v then
+                        local hueC=((t+i*0.1)%1)
+                        local rcC=isLocked and Color3.fromRGB(255,255,100) or Color3.fromHSV(hueC,1,1)
+                        if not c.rb and not isLocked then rcC=A end
+                        h.Visible=true
+                        h.Size=UDim2.new(0,csize,0,2.5)
+                        h.Position=UDim2.new(0,pt2.x,0,pt2.y)
+                        h.BackgroundColor3=rcC
+                        v.Visible=true
+                        v.Size=UDim2.new(0,2.5,0,csize)
+                        v.Position=UDim2.new(0,pt2.x,0,pt2.y)
+                        v.BackgroundColor3=rcC
+                    else
+                        if h then h.Visible=false end
+                        if v then v.Visible=false end
+                    end
+                end
+                if ec[u.."_n"] then
+                    local tp=sp[1]
+                    if tp and tp.on then
+                        local hueN=((t*0.5)%1)
+                        local rcN=isLocked and Color3.fromRGB(255,255,100) or Color3.fromHSV(hueN,1,1)
+                        if not c.rb and not isLocked then rcN=A end
+                        ec[u.."_n"].Visible=c.nm
+                        ec[u.."_n"].TextColor3=rcN
+                        ec[u.."_n"].Size=UDim2.new(0,140,0,14)
+                        ec[u.."_n"].Position=UDim2.new(0,tp.x-70,0,tp.y-20)
+                        if ec[u.."_nbg"] then
+                            ec[u.."_nbg"].Visible=c.nm
+                            ec[u.."_nbg"].Size=UDim2.new(0,142,0,16)
+                            ec[u.."_nbg"].Position=UDim2.new(0,tp.x-71,0,tp.y-21)
+                        end
+                    end
+                end
+                if ec[u.."_d"] then
+                    local bt=sp[3]
+                    if bt and bt.on then
+                        ec[u.."_d"].Visible=c.ds
+                        ec[u.."_d"].Text=math.floor(di).." studs"
+                        ec[u.."_d"].Size=UDim2.new(0,140,0,14)
+                        ec[u.."_d"].Position=UDim2.new(0,bt.x-70,0,bt.y+4)
+                    end
+                end
+                if ec[u.."_click"] then
+                    local tp=sp[1]
+                    local bt=sp[3]
+                    if tp and bt and tp.on and bt.on and sp[2].on then
+                        local w=math.abs(sp[2].x-sp[1].x)
+                        local h=bt.y-tp.y
+                        ec[u.."_click"].Size=UDim2.new(0,w,0,h)
+                        ec[u.."_click"].Position=UDim2.new(0,tp.x,0,tp.y)
+                        ec[u.."_click"].Visible=true
+                    else
+                        ec[u.."_click"].Visible=false
+                    end
+                end
+            else
+                for i=1,12 do if ec[u.."_e"..i] then ec[u.."_e"..i].Visible=false end end
+                for i=1,8 do
+                    if ec[u.."_ch"..i] then ec[u.."_ch"..i].Visible=false end
+                    if ec[u.."_cv"..i] then ec[u.."_cv"..i].Visible=false end
+                end
+                if ec[u.."_click"] then ec[u.."_click"].Visible=false end
+            end
+            if ec[u.."_hl"] then
+                ec[u.."_hl"].Adornee=(c.aura and di<=c.md) and ch or nil
+                local hueH=((t*0.7)%1)
+                local rcH=isLocked and Color3.fromRGB(255,255,100) or Color3.fromHSV(hueH,1,1)
+                if not c.rb and not isLocked then rcH=A end
+                ec[u.."_hl"].FillColor=rcH
+                ec[u.."_hl"].OutlineColor=rcH
+            end
+        end
+    end
+    local function upP()
+        pcall(function()
+            local x=LP.Character
+            local hu=gH(x)
+            if hu then
+                pcall(function() hu.WalkSpeed=c.spd and c.sv or 16 end)
+                if c.jmp then
+                    pcall(function() hu.JumpPower=c.jv hu.UseJumpPower=true end)
+                else
+                    pcall(function() hu.JumpPower=50 end)
+                end
+            end
+            if c.nc and x then
+                for _,p in pairs(x:GetDescendants()) do
+                    pcall(function() if p:IsA("BasePart") then p.CanCollide=false end end)
+                end
+            end
+        end)
+    end
+    UI.JumpRequest:Connect(function()
+        pcall(function()
+            if c.ij then
+                local x=LP.Character
+                local hu=gH(x)
+                if hu then hu:ChangeState(Enum.HumanoidStateType.Jumping) end
+            end
+        end)
+    end)
+    LP.Idled:Connect(function()
+        pcall(function()
+            if c.afk then
+                game:GetService("VirtualUser"):CaptureController()
+                game:GetService("VirtualUser"):ClickButton2(Vector2.new())
+            end
+        end)
+    end)
+    local function gT()
+        local mc=LP.Character
+        local mh=gR(mc)
+        if not mh then return nil end
+        if c.lockedUser~=0 then
+            for _,p in ipairs(P:GetPlayers()) do
+                if p.UserId==c.lockedUser then
+                    local ch=p.Character
+                    if ch then
+                        local hum=gH(ch)
+                        local head=ch:FindFirstChild("Head") or gR(ch)
+                        if head and hum and (hum.Health or 1)>0 then
+                            return head,hum
+                        else
+                            c.lockedUser=0
+                        end
+                    end
+                end
+            end
+        end
+        local cl=nil
+        local clH=nil
+        local best=math.huge
+        local ck=CM.CFrame.LookVector
+        for _,p in ipairs(P:GetPlayers()) do
+            if p==LP then continue end
+            local x=p.Character
+            if not x then continue end
+            local hu=gH(x)
+            local head=x:FindFirstChild("Head")
+            if not head then continue end
+            if not hu or (hu.Health or 0)<=0 then continue end
+            local d=(mh.Position-head.Position).Magnitude
+            if d>c.ar then continue end
+            local score=d
+            if c.priority then
+                local hpPct=(hu.Health or 100)/math.max(hu.MaxHealth or 100,1)
+                score=d*(0.5+hpPct)
+            end
+            local dir=(head.Position-CM.CFrame.Position).Unit
+            local ang=math.deg(math.acos(math.clamp(ck:Dot(dir),-1,1)))
+            if ang>c.af/2 then continue end
+            if score<best then
+                best=score
+                cl=head
+                clH=hu
+            end
+        end
+        return cl,clH
+    end
+    local function aimL()
+        if not c.aim then return end
+        local t,hum=gT()
+        if not t then return end
+        local mc=LP.Character
+        local mh=gR(mc)
+        if not mh then return end
+        local tp=t.Position
+        if hum and c.predict then
+            local hrp=hum.Parent and hum.Parent:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                tp=tp+(hrp.AssemblyLinearVelocity or Vector3.new())*c.predictTime
+            end
+        end
+        local mp=CM.CFrame.Position
+        local dir=(tp-mp).Unit
+        local tC=CFrame.new(mp,mp+dir)
+        if c.instant then
+            CM.CFrame=tC
+        elseif c.hard then
+            local sm2=math.clamp(c.as,0.01,1)
+            local newCF=CM.CFrame:Lerp(tC,sm2)
+            local diff=math.deg(math.acos(math.clamp(CM.CFrame.LookVector:Dot(newCF.LookVector),-1,1)))
+            if diff>c.maxStep then
+                CM.CFrame=CM.CFrame:Lerp(newCF,c.maxStep/diff)
+            else
+                CM.CFrame=newCF
+            end
+        else
+            local sm2=math.clamp(c.as,0.01,1)
+            CM.CFrame=CM.CFrame:Lerp(tC,sm2)
+        end
+    end
+    local blockHold=false
+    local function autoBlockFn()
+        if not c.autoBlock and not c.autoParry then
+            if blockHold then
+                blockHold=false
+                pcall(function() VIM:SendKeyEvent(false,Enum.KeyCode.F,false,game) end)
+            end
+            return
+        end
+        local mc=LP.Character
+        local mh=gR(mc)
+        if not mh then return end
+        local nearest=math.huge
+        for _,p in ipairs(P:GetPlayers()) do
+            if p==LP then continue end
+            local ch=p.Character
+            if not ch then continue end
+            local hr=gR(ch)
+            if not hr then continue end
+            local d=(mh.Position-hr.Position).Magnitude
+            if d<nearest then nearest=d end
+        end
+        local should=c.autoBlock and nearest<=c.blockRange
+        if c.autoParry and nearest<=c.parryRange then should=true end
+        if should and not blockHold then
+            blockHold=true
+            pcall(function() VIM:SendKeyEvent(true,Enum.KeyCode.F,false,game) end)
+        elseif not should and blockHold then
+            blockHold=false
+            pcall(function() VIM:SendKeyEvent(false,Enum.KeyCode.F,false,game) end)
+        end
+    end
+    RS.RenderStepped:Connect(function()
+        pcall(upE)
+        pcall(upP)
+        pcall(aimL)
+        pcall(autoBlockFn)
+    end)
+    P.PlayerRemoving:Connect(function(p) pcall(function() clr(p) end) end)
+    P.PlayerAdded:Connect(function(p)
+        pcall(function()
+            p.CharacterAdded:Connect(function()
+                task.wait(0.5)
+                pcall(function() clr(p) end)
+            end)
+        end)
+    end)
+    UI.InputBegan:Connect(function(i,pr)
+        if pr then return end
+        pcall(function()
+            if i.KeyCode==Enum.KeyCode.Escape and op then tgM() end
+            if i.KeyCode==Enum.KeyCode.Q then c.aim=not c.aim end
+            if i.KeyCode==Enum.KeyCode.Insert then tgM() end
+        end)
+    end)
+    pcall(function()
+        game:GetService("StarterGui"):SetCore("SendNotification",{Title="NX GREEN v3",Text="By Purinat - พร้อมใช้งาน",Duration=5})
+    end)
+end)
