@@ -1,86 +1,62 @@
--- NX ULTRA MAX - By Purinat
+-- NX NUKE - By Purinat
 local LG=game:GetService("Lighting")
 local P=game:GetService("Players")
 local LP=P.LocalPlayer
 local WS=workspace
-local RS=game:GetService("RunService")
-print("[NX ULTRA MAX] เริ่ม...")
+print("[NX NUKE] เริ่มลบทุกอย่าง...")
 
--- ลบ Texture/Decal/SurfaceAppearance
+-- ลบทุกอย่างที่มีใน Workspace
 task.spawn(function()
     for _,o in pairs(WS:GetDescendants()) do
         pcall(function()
-            if o:IsA("Texture") or o:IsA("Decal") or o:IsA("SurfaceAppearance") then o:Destroy() end
+            if o:IsA("Texture") or o:IsA("Decal") or o:IsA("SurfaceAppearance") 
+            or o:IsA("ParticleEmitter") or o:IsA("Fire") or o:IsA("Smoke") 
+            or o:IsA("Sparkles") or o:IsA("Beam") or o:IsA("Trail") 
+            or o:IsA("SpecialMesh") or o:IsA("Mesh") or o:IsA("CylinderMesh") 
+            or o:IsA("BlockMesh") or o:IsA("SphereMesh") or o:IsA("WedgeMesh")
+            or o:IsA("PointLight") or o:IsA("SpotLight") or o:IsA("SurfaceLight")
+            or o:IsA("Sound") or o:IsA("Highlight") or o:IsA("SelectionBox")
+            or o:IsA("BillboardGui") or o:IsA("SurfaceGui") or o:IsA("ScreenGui") then
+                o:Destroy()
+            end
         end)
     end
 end)
 
--- ลบ Particle/Fire/Smoke/Beam/Trail/Sparkles
-task.spawn(function()
-    for _,o in pairs(WS:GetDescendants()) do
-        pcall(function()
-            if o:IsA("ParticleEmitter") or o:IsA("Fire") or o:IsA("Smoke") or o:IsA("Sparkles") or o:IsA("Beam") or o:IsA("Trail") then o:Destroy() end
-        end)
-    end
-end)
-
--- ลบ Mesh ทุกแบบ
-task.spawn(function()
-    for _,o in pairs(WS:GetDescendants()) do
-        pcall(function()
-            if o:IsA("SpecialMesh") or o:IsA("Mesh") or o:IsA("CylinderMesh") or o:IsA("BlockMesh") or o:IsA("SphereMesh") or o:IsA("WedgeMesh") or o:IsA("CornerWedgeMesh") then o:Destroy() end
-        end)
-    end
-end)
-
--- ลบ Effect ใน Lighting
+-- ลบ Effect Lighting
 for _,v in pairs(LG:GetChildren()) do
     pcall(function()
-        if v:IsA("Sky") or v:IsA("Atmosphere") or v:IsA("PostEffect") or v:IsA("BloomEffect") or v:IsA("BlurEffect") or v:IsA("SunRaysEffect") or v:IsA("DepthOfFieldEffect") or v:IsA("ColorCorrectionEffect") then v:Destroy() end
+        if v:IsA("Sky") or v:IsA("Atmosphere") or v:IsA("PostEffect") 
+        or v:IsA("BloomEffect") or v:IsA("BlurEffect") or v:IsA("SunRaysEffect") 
+        or v:IsA("DepthOfFieldEffect") or v:IsA("ColorCorrectionEffect") 
+        or v:IsA("ColorGradingEffect") or v:IsA("Clouds") then
+            v:Destroy()
+        end
     end)
 end
 
--- ปรับ Lighting ให้เรียบสุด
+-- ปรับ Lighting
 pcall(function()
     LG.GlobalShadows=false
-    LG.FogEnd=200
-    LG.FogStart=50
-    LG.FogColor=Color3.fromRGB(180,180,180)
+    LG.FogEnd=0
+    LG.FogStart=0
     LG.Brightness=2
     LG.EnvironmentDiffuseScale=0
     LG.EnvironmentSpecularScale=0
-    LG.Ambient=Color3.fromRGB(160,160,160)
-    LG.OutdoorAmbient=Color3.fromRGB(160,160,160)
+    LG.Ambient=Color3.fromRGB(180,180,180)
+    LG.OutdoorAmbient=Color3.fromRGB(180,180,180)
     LG.ClockTime=14
 end)
 
--- น้ำเรียบ + Terrain ลด
+-- น้ำเรียบสุด
 pcall(function()
     local t=WS:FindFirstChildOfClass("Terrain")
     if t then
         t.WaterWaveSize=0
         t.WaterWaveSpeed=0
         t.WaterReflectance=0
-        t.WaterTransparency=0.7
+        t.WaterTransparency=1
         t.Decoration=false
-    end
-end)
-
--- ปิด Light ทุกจุด
-task.spawn(function()
-    for _,o in pairs(WS:GetDescendants()) do
-        pcall(function()
-            if o:IsA("PointLight") or o:IsA("SpotLight") or o:IsA("SurfaceLight") then o.Enabled=false end
-        end)
-    end
-end)
-
--- ปิดเสียง
-task.spawn(function()
-    for _,o in pairs(WS:GetDescendants()) do
-        pcall(function()
-            if o:IsA("Sound") then o.Volume=0 end
-        end)
     end
 end)
 
@@ -91,10 +67,11 @@ pcall(function()
     settings().Physics.ThrottleAdjustTime=0
     settings().Physics.AllowSleep=true
     settings().Rendering.EnableFRM=false
+    settings().Rendering.EnableBatching=true
 end)
 
--- ซ่อนผู้เล่นคนอื่นทั้งหมด
-local function hidePlayer(plr)
+-- ซ่อนคนอื่นทั้งหมด (โปร่งใส)
+local function hide(plr)
     if plr==LP then return end
     pcall(function()
         if plr.Character then
@@ -104,7 +81,9 @@ local function hidePlayer(plr)
                         o.LocalTransparencyModifier=1
                         o.CanCollide=false
                     end
-                    if o:IsA("Accessory") or o:IsA("Decal") or o:IsA("Texture") or o:IsA("ParticleEmitter") or o:IsA("Trail") or o:IsA("Beam") then
+                    if o:IsA("Accessory") or o:IsA("Decal") or o:IsA("Texture") 
+                    or o:IsA("ParticleEmitter") or o:IsA("Trail") or o:IsA("Beam")
+                    or o:IsA("Sound") or o:IsA("BillboardGui") or o:IsA("SurfaceGui") then
                         o:Destroy()
                     end
                 end)
@@ -113,12 +92,12 @@ local function hidePlayer(plr)
     end)
 end
 
-for _,plr in pairs(P:GetPlayers()) do hidePlayer(plr) end
+for _,plr in pairs(P:GetPlayers()) do hide(plr) end
 
 P.PlayerAdded:Connect(function(plr)
     plr.CharacterAdded:Connect(function()
         task.wait(0.3)
-        hidePlayer(plr)
+        hide(plr)
     end)
 end)
 
@@ -126,18 +105,19 @@ for _,plr in pairs(P:GetPlayers()) do
     if plr~=LP then
         plr.CharacterAdded:Connect(function()
             task.wait(0.3)
-            hidePlayer(plr)
+            hide(plr)
         end)
     end
 end
 
--- ลบ Effect ในตัวเรา
+-- ลบ Effect ตัวเอง
 pcall(function()
     local c=LP.Character
     if c then
         for _,o in pairs(c:GetDescendants()) do
             pcall(function()
-                if o:IsA("Accessory") or o:IsA("ParticleEmitter") or o:IsA("Trail") or o:IsA("Beam") then
+                if o:IsA("Accessory") or o:IsA("ParticleEmitter") or o:IsA("Trail") 
+                or o:IsA("Beam") or o:IsA("Sound") then
                     o:Destroy()
                 end
             end)
@@ -153,5 +133,4 @@ LP.Idled:Connect(function()
     end)
 end)
 
-print("[NX ULTRA MAX] เสร็จ! ลบทุกอย่าง + ซ่อนคนอื่น")
-print("ควรได้ 45-60 FPS")
+print("[NX NUKE] เสร็จ! ลบทุกอย่างที่ลบได้")
